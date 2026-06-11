@@ -1,0 +1,191 @@
+@import url('https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  font-family: "Mulish", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --sa-t: env(safe-area-inset-top);
+  --sa-r: env(safe-area-inset-right);
+  --sa-b: env(safe-area-inset-bottom);
+  --sa-l: env(safe-area-inset-left);
+  --app-height: 100dvh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  min-height: 100%;
+  user-select: none; 
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  overflow: hidden;
+  overscroll-behavior-y: none;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  height: var(--app-height);
+  min-height: var(--app-height);
+  overflow: hidden;
+  overscroll-behavior-y: none;
+}
+
+button {
+  font: inherit;
+}
+
+#root {
+  height: var(--app-height);
+  min-height: var(--app-height);
+  overflow: hidden;
+  overscroll-behavior-y: none;
+}
+
+.drop-wrapper {
+  position: relative;
+  width: 225px;
+  height: 225px;
+
+ 
+
+  border-radius: 50% 50% 50% 0;
+
+  transform: rotate(135deg);
+
+  
+  /* border: 10px solid white; */
+
+box-shadow: 20px -20px 30px rgba(0, 0, 0, 0.35);
+}
+
+
+.drop {
+  position: relative;
+  width: 220px;
+  height: 220px;
+ /* bottom: 4px;
+  left: 4px; */
+  background-color: #538fff10;
+ 
+
+  border-radius: 50% 50% 50% 0;
+
+  transform: rotate(135deg);
+
+  overflow: hidden;
+  border: 10px solid white;
+
+box-shadow: 20px -20px 30px rgba(0, 0, 0, 0.35);
+}
+
+@keyframes waveLoop {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.wave-loop {
+  animation: waveLoop 3s linear infinite;
+}
+
+@keyframes waveLoopRev {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.wave-loop-rev {
+  animation: waveLoopRev 5s linear infinite;
+}
+
+
+.bubble {
+  position: absolute;
+  bottom: -10px;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 9999px;
+  animation: rise linear infinite;
+}
+
+@keyframes rise {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-220px);
+    opacity: 0;
+  }
+}
+
+
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  background: transparent;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+
+.leaflet-attribution-flag {
+  display: none !important;
+}
+
+.leaflet-control-attribution {
+  display: none !important;
+}
+/* .wave {
+  position: absolute;
+
+  width: 400px;
+  height: 400px;
+
+
+  background: linear-gradient(180deg, #60a5fa, #2563eb);
+
+  left: -125px;
+  bottom: -240px;
+
+  border-radius: 15%;
+
+  animation: wave 5s linear infinite;
+}
+
+.wave::before {
+  content: "";
+  position: absolute;
+
+  transform: rotate(45deg);
+  inset: 0px;
+
+   background: linear-gradient(180deg, #60a5fa, #2563eb);
+
+  border-radius: 35%;
+}
+
+@keyframes wave {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+} */
