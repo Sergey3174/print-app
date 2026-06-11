@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useMemo } from "react";
 import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
 import { ChevronLeft, Plus, Scan, AlertCircle } from "lucide-react";
 import { SettingsEditorSheet } from "../../pages/profile/ui/SettingsEditorSheet";
 import { parsePages } from "./parsePages";
 import * as pdfjs from "pdfjs-dist";
 import mammoth from "mammoth";
+import { useNavigate } from "react-router-dom";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -88,6 +89,8 @@ export function Preview() {
   const [loading, setLoading] = useState(false);
   const [isPageSheetOpen, setIsPageSheetOpen] = useState(false);
 
+  const navigate = useNavigate();
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -110,16 +113,13 @@ export function Preview() {
 
     // Fallback to range inputs
     if (!rangeStart || !rangeEnd) return [];
-    
+
     const start = parseInt(rangeStart);
     const end = parseInt(rangeEnd);
-    
+
     if (isNaN(start) || isNaN(end) || start > end) return [];
-    
-    return Array.from(
-      { length: end - start + 1 },
-      (_, i) => start + i,
-    );
+
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }, [pageMode, pageRangeInput, rangeStart, rangeEnd, totalPages]);
 
   const selectedPagesCount = selectedPages.length;
@@ -127,7 +127,7 @@ export function Preview() {
 
   const rangeError = useMemo(() => {
     if (pageMode === "all") return null;
-    
+
     if (pageRangeInput.trim()) {
       const parsed = parsePages(pageRangeInput, totalPages);
       if (parsed === null) {
@@ -141,15 +141,15 @@ export function Preview() {
       if (!rangeStart && !rangeEnd) {
         return "Please enter a page range";
       }
-      
+
       // If only one is empty
       if (!rangeStart || !rangeEnd) {
         return "Please fill both From and To fields";
       }
-      
+
       const start = parseInt(rangeStart);
       const end = parseInt(rangeEnd);
-      
+
       // Validate ranges
       if (start < 1 || start > totalPages) {
         return `Start page must be between 1 and ${totalPages}`;
@@ -229,7 +229,10 @@ export function Preview() {
       <section className="flex min-h-0 flex-1 flex-col overflow-auto bg-white">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
-          <button className="flex items-center gap-1 text-sm font-medium text-gray-800">
+          <button
+            className="flex items-center gap-1 text-sm font-medium text-gray-800"
+            onClick={() => navigate(-1)}
+          >
             <ChevronLeft size={18} /> Printing Preview
           </button>
           <button
@@ -365,7 +368,7 @@ export function Preview() {
           </div>
 
           {pageMode === "custom" && selectedPages.length > 0 && (
-            <div className="flex items-center gap-2 px-4 py-2 text-xs text-gray-600 bg-blue-50 rounded-lg mx-4 -mt-2">
+            <div className="flex items-center gap-2 px-4 py-2 text-xs text-gray-600 bg-blue-50 rounded-lg">
               <span className="font-medium">Selected:</span>
               <span className="font-semibold text-gray-900">
                 {selectedPages.slice(0, 5).join(", ")}
@@ -399,7 +402,9 @@ export function Preview() {
             <p className="text-[10px] text-gray-400">
               (Rs {pricePerPage} / Pg)
             </p>
-            <p className="text-xl font-semibold text-gray-900">$ {totalPrice}</p>
+            <p className="text-xl font-semibold text-gray-900">
+              $ {totalPrice}
+            </p>
             <p className="text-[10px] text-gray-400 mt-0.5">
               {selectedPagesCount} page{selectedPagesCount !== 1 ? "s" : ""}
             </p>
@@ -431,100 +436,104 @@ export function Preview() {
         <div className="flex flex-col gap-4">
           {/* Custom Range Options */}
           <div className="flex flex-col gap-4">
-              {/* Option 1: Range Inputs */}
-              <div className="border-b border-gray-200 pb-4">
-                <label className="block text-xs font-semibold text-gray-600 uppercase mb-3">
-                  Method 1: Range
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-2">
-                      From
-                    </label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      placeholder="1"
-                      value={rangeStart}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        // Allow only digits
-                        if (value === "" || /^\d+$/.test(value)) {
-                          setRangeStart(value);
-                          setPageRangeInput("");
-                        }
-                      }}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-2">
-                      To
-                    </label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      placeholder={String(totalPages)}
-                      value={rangeEnd}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        // Allow only digits
-                        if (value === "" || /^\d+$/.test(value)) {
-                          setRangeEnd(value);
-                          setPageRangeInput("");
-                        }
-                      }}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
+            {/* Option 1: Range Inputs */}
+            <div className="border-b border-gray-200 pb-4">
+              <label className="block text-xs font-semibold text-gray-600 uppercase mb-3">
+                Method 1: Range
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    From
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="1"
+                    value={rangeStart}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow only digits
+                      if (value === "" || /^\d+$/.test(value)) {
+                        setRangeStart(value);
+                        setPageRangeInput("");
+                      }
+                    }}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    To
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder={String(totalPages)}
+                    value={rangeEnd}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow only digits
+                      if (value === "" || /^\d+$/.test(value)) {
+                        setRangeEnd(value);
+                        setPageRangeInput("");
+                      }
+                    }}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                 </div>
               </div>
+            </div>
 
-              {/* Option 2: Custom Format */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase mb-3">
-                  Method 2: Custom Format
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g., 1-5, 1-5,8, 1-5,8,10-12"
-                  value={pageRangeInput}
-                  onChange={(e) => {
-                    setPageRangeInput(e.target.value);
-                  }}
-                  className={`w-full px-3 py-2.5 border rounded-lg text-sm font-medium focus:outline-none focus:ring-2 ${
-                    rangeError && pageRangeInput.trim()
-                      ? "border-red-300 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-blue-500"
-                  }`}
+            {/* Option 2: Custom Format */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 uppercase mb-3">
+                Method 2: Custom Format
+              </label>
+              <input
+                type="text"
+                placeholder="e.g., 1-5, 1-5,8, 1-5,8,10-12"
+                value={pageRangeInput}
+                onChange={(e) => {
+                  setPageRangeInput(e.target.value);
+                }}
+                className={`w-full px-3 py-2.5 border rounded-lg text-sm font-medium focus:outline-none focus:ring-2 ${
+                  rangeError && pageRangeInput.trim()
+                    ? "border-red-300 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-blue-500"
+                }`}
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                Separated by commas. Use hyphens for ranges (e.g., 1-3).
+              </p>
+            </div>
+
+            {/* Error Message */}
+            {rangeError && (
+              <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <AlertCircle
+                  className="text-red-500 shrink-0 mt-0.5"
+                  size={16}
                 />
-                <p className="text-xs text-gray-500 mt-2">
-                  Separated by commas. Use hyphens for ranges (e.g., 1-3).
+                <p className="text-sm text-red-900">{rangeError}</p>
+              </div>
+            )}
+
+            {/* Selection Summary */}
+            {!rangeError && selectedPages.length > 0 && (
+              <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                <p className="text-sm font-medium text-green-900">
+                  Selected:{" "}
+                  <span className="font-bold">{selectedPagesCount}</span> page
+                  {selectedPagesCount !== 1 ? "s" : ""}
+                </p>
+                <p className="text-xs text-green-800 mt-1">
+                  {selectedPages.slice(0, 10).join(", ")}
+                  {selectedPages.length > 10 ? "..." : ""}
                 </p>
               </div>
-
-              {/* Error Message */}
-              {rangeError && (
-                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={16} />
-                  <p className="text-sm text-red-900">{rangeError}</p>
-                </div>
-              )}
-
-              {/* Selection Summary */}
-              {!rangeError && selectedPages.length > 0 && (
-                <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-                  <p className="text-sm font-medium text-green-900">
-                    Selected: <span className="font-bold">{selectedPagesCount}</span> page
-                    {selectedPagesCount !== 1 ? "s" : ""}
-                  </p>
-                  <p className="text-xs text-green-800 mt-1">
-                    {selectedPages.slice(0, 10).join(", ")}
-                    {selectedPages.length > 10 ? "..." : ""}
-                  </p>
-                </div>
-              )}
-            </div>
+            )}
+          </div>
         </div>
       </SettingsEditorSheet>
     </MobileShell>
