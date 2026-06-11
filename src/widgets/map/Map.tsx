@@ -60,6 +60,7 @@ export function Map({
   const [userPosition, setUserPosition] = useState<[number, number] | null>(
     null,
   );
+  const mapViewportHeight = isExpanded ? 450 : 300;
 
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
@@ -180,16 +181,6 @@ export function Map({
   }, [currentPosition, nearestDistance, nearestPoint, onNearestPointChange]);
 
   useEffect(() => {
-    if (!map.current) return;
-
-    const timeoutId = window.setTimeout(() => {
-      map.current?.resize();
-    }, 300);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [isExpanded]);
-
-  useEffect(() => {
     if (!selectedPoint || !map.current) return;
 
     map.current.flyTo({
@@ -203,10 +194,14 @@ export function Map({
   return (
     <div className="relative shrink-0">
       <div
-        ref={mapContainer}
-        style={{ width: "100%", height: isExpanded ? "450px" : "300px" }}
-        className="transition-all duration-300"
-      />
+        style={{ height: `${mapViewportHeight}px` }}
+        className="overflow-hidden transition-all duration-300"
+      >
+        <div
+          ref={mapContainer}
+          style={{ width: "100%", height: "450px" }}
+        />
+      </div>
 
       <div className="flex min-h-[52px] w-full items-center justify-between gap-3 border-b border-gray-400/20 p-3">
         <div className="min-w-0 flex-1">
