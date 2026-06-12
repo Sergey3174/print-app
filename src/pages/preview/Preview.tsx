@@ -1,20 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, Plus, Scan, AlertCircle } from "lucide-react";
-import * as pdfjs from "pdfjs-dist";
-import { renderAsync } from "docx-preview";
+import { ChevronLeft, Scan, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
 import { SettingsEditorSheet } from "../../pages/profile/ui/SettingsEditorSheet";
+import { getFileBaseName } from "../../shared/lib/file/getFileBaseName";
+import { getFileExtension } from "../../shared/lib/file/getFileExtension";
+import { useRecentFiles } from "../../widgets/app-layout/model/recentFilesContext";
 import { parsePages } from "./parsePages";
-
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url,
-).toString();
-
-type PagePreview =
-  | { type: "image"; src: string }
-  | { type: "docx-node"; node: HTMLElement };
+import { setPreviewSession, type PagePreview } from "./previewSession";
+import { buildDocxPreviews } from "./lib/buildDocxPreviews";
+import { buildPdfPreviews } from "./lib/buildPdfPreviews";
+import { isPreviewImageExtension } from "./lib/isPreviewImageExtension";
 
 const DOCX_PAGE_WIDTH = 794;
 const DOCX_DEFAULT_PAGE_HEIGHT = 1123;
@@ -43,98 +39,6 @@ function ToggleOption({
       ))}
     </div>
   );
-}
-
-function createDocxPageNode(content: HTMLElement, pageHeight: number) {
-  const wrapper = document.createElement("div");
-  wrapper.style.cssText = [
-    `width:${DOCX_PAGE_WIDTH}px`,
-    `height:${pageHeight}px`,
-    "overflow:hidden",
-    "position:relative",
-    "flex-shrink:0",
-    "background:white",
-  ].join(";");
-
-  const clone = content.cloneNode(true) as HTMLElement;
-  clone.style.position = "absolute";
-  clone.style.left = "0";
-  clone.style.top = "0";
-  clone.style.width = `${DOCX_PAGE_WIDTH}px`;
-  clone.style.margin = "0";
-  clone.style.background = "white";
-  clone.style.boxShadow = "none";
-
-  wrapper.appendChild(clone);
-  return wrapper;
-}
-
-async function buildDocxPreviews(buffer: ArrayBuffer): Promise<PagePreview[]> {
-  const container = document.createElement("div");
-  container.style.cssText = [
-    "position:fixed",
-    "top:-10000px",
-    "left:-10000px",
-    `width:${DOCX_PAGE_WIDTH}px`,
-    "pointer-events:none",
-    "opacity:0",
-    "background:white",
-  ].join(";");
-  document.body.appendChild(container);
-
-  try {
-    await renderAsync(new Uint8Array(buffer), container, undefined, {
-      inWrapper: true,
-      ignoreWidth: false,
-      ignoreHeight: false,
-      breakPages: true,
-      ignoreLastRenderedPageBreak: false,
-      useBase64URL: true,
-    });
-
-    await new Promise((resolve) => window.setTimeout(resolve, 150));
-
-    const renderedPages = Array.from(
-      container.querySelectorAll<HTMLElement>("section.docx"),
-    );
-
-    if (renderedPages.length > 1) {
-      return renderedPages.map((page) => ({
-        type: "docx-node",
-        node: createDocxPageNode(
-          page,
-          Math.max(page.clientHeight, DOCX_DEFAULT_PAGE_HEIGHT),
-        ),
-      }));
-    }
-
-    const fullDocument =
-      renderedPages[0] ??
-      container.querySelector<HTMLElement>(".docx") ??
-      container;
-
-    const visiblePageHeight =
-      fullDocument.clientHeight || DOCX_DEFAULT_PAGE_HEIGHT;
-    const totalContentHeight =
-      fullDocument.scrollHeight || visiblePageHeight || DOCX_DEFAULT_PAGE_HEIGHT;
-    const pageCount = Math.max(
-      1,
-      Math.ceil(totalContentHeight / visiblePageHeight),
-    );
-
-    return Array.from({ length: pageCount }, (_, index) => {
-      const wrapper = createDocxPageNode(fullDocument, visiblePageHeight);
-      const inner = wrapper.firstElementChild as HTMLElement | null;
-
-      if (inner) {
-        inner.style.top = `-${index * visiblePageHeight}px`;
-      }
-
-      return { type: "docx-node", node: wrapper };
-    });
-  } finally {
-    document.body.removeChild(container);
-  }
 }
 
 function DocxPageCard({ node }: { node: HTMLElement }) {
@@ -203,6 +107,7 @@ function Placeholder() {
 }
 
 export function Preview() {
+  const { activeRecentFile } = useRecentFiles();
   const [pagesPerSheet, setPagesPerSheet] = useState(1);
   const [pageMode, setPageMode] = useState<"all" | "custom">("all");
   const [pageRangeInput, setPageRangeInput] = useState("");
@@ -218,9 +123,8 @@ export function Preview() {
 
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const totalPages = previews?.length ?? 3;
+  const totalPages = previews?.length ?? activeRecentFile?.pages ?? 0;
   const pricePerPage = 2;
 
   const selectedPages = useMemo(() => {
@@ -291,51 +195,70 @@ export function Preview() {
     setScrollProgress(isNaN(progress) ? 0 : progress);
   };
 
-  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  useEffect(() => {
+    let isCancelled = false;
 
-    setFileName(file.name.replace(/\.[^.]+$/, ""));
-    setLoading(true);
-    setPreviews(null);
+    async function loadPreviewFromContext() {
+      if (!activeRecentFile) {
+        setFileName("No file selected");
+        setPreviews(null);
+        setPreviewSession(null);
+        return;
+      }
 
-    try {
-      const ext = file.name.split(".").pop()?.toLowerCase();
+      setFileName(activeRecentFile.title);
 
-      if (ext === "pdf") {
-        const buffer = await file.arrayBuffer();
-        const pdf = await pdfjs.getDocument({ data: buffer }).promise;
-        const result: PagePreview[] = [];
+      if (!activeRecentFile.file) {
+        setPreviews(null);
+        setPreviewSession(null);
+        return;
+      }
 
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 0.5 });
-          const canvas = document.createElement("canvas");
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const ctx = canvas.getContext("2d")!;
+      const file = activeRecentFile.file;
+      const fileBaseName = getFileBaseName(file.name);
+      const extension = getFileExtension(file.name);
 
-          await page.render({ canvas, canvasContext: ctx, viewport }).promise;
-          result.push({ type: "image", src: canvas.toDataURL() });
+      setLoading(true);
+      setPreviews(null);
+      setPreviewSession(null);
+
+      try {
+        let result: PagePreview[] | null = null;
+
+        if (extension === "pdf") {
+          result = await buildPdfPreviews(file);
+        } else if (extension === "docx") {
+          result = await buildDocxPreviews(file);
+        } else if (isPreviewImageExtension(extension)) {
+          result = [{ type: "image", src: URL.createObjectURL(file) }];
+        }
+
+        if (isCancelled || !result) {
+          return;
         }
 
         setPreviews(result);
-      } else if (ext === "docx") {
-        const buffer = await file.arrayBuffer();
-        setPreviews(await buildDocxPreviews(buffer));
-      } else if (
-        ["jpg", "jpeg", "png", "webp", "gif", "svg"].includes(ext ?? "")
-      ) {
-        const src = URL.createObjectURL(file);
-        setPreviews([{ type: "image", src }]);
+        setPreviewSession({
+          fileName: fileBaseName,
+          previews: result,
+        });
+      } catch (err) {
+        if (!isCancelled) {
+          console.error(err);
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-      e.target.value = "";
     }
-  };
+
+    void loadPreviewFromContext();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [activeRecentFile]);
 
   return (
     <MobileShell>
@@ -343,23 +266,11 @@ export function Preview() {
         <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
           <button
             className="flex items-center gap-1 text-sm font-medium text-gray-800"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/app")}
           >
             <ChevronLeft size={18} /> Printing Preview
           </button>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1.5 text-sm font-medium text-gray-800"
-          >
-            <Plus size={16} /> Add File
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,.docx,image/*"
-            className="hidden"
-            onChange={handleFile}
-          />
+          <div className="w-[76px]" />
         </div>
 
         <div className="mx-3 my-2 rounded-xl border border-gray-300">
@@ -412,7 +323,12 @@ export function Preview() {
                 }}
               />
             </div>
-            <button className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-500">
+            <button
+              type="button"
+              onClick={() => navigate("/app/full-preview")}
+              disabled={!previews?.length}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-500 disabled:opacity-40"
+            >
               <Scan size={14} />
             </button>
           </div>
@@ -505,17 +421,29 @@ export function Preview() {
 
         <div className="mt-auto flex items-center justify-between px-4 pb-5 pt-3">
           <div>
-            <p className="text-[10px] text-gray-400">(Rs {pricePerPage} / Pg)</p>
-            <p className="text-xl font-semibold text-gray-900">$ {totalPrice}</p>
+            <p className="text-[10px] text-gray-400">
+              (Rs {pricePerPage} / Pg)
+            </p>
+            <p className="text-xl font-semibold text-gray-900">
+              $ {totalPrice}
+            </p>
             <p className="mt-0.5 text-[10px] text-gray-400">
               {selectedPagesCount} page{selectedPagesCount !== 1 ? "s" : ""}
             </p>
           </div>
           <button
             onClick={() =>
-              alert(
-                `Print: ${selectedPagesCount} pages, ${type}, ${sides}, ${pagesPerSheet} per sheet\nPages: ${selectedPages.join(", ")}`,
-              )
+              navigate("/app/payment-preview", {
+                state: {
+                  fileName,
+                  totalPages,
+                  selectedPagesCount,
+                  totalPrice,
+                  type,
+                  sides,
+                  pagesPerSheet,
+                },
+              })
             }
             className="ml-4 max-w-[200px] flex-1 rounded-full bg-gray-900 py-3.5 text-sm font-semibold text-white disabled:opacity-50"
             disabled={rangeError !== null && pageMode === "custom"}
@@ -610,8 +538,9 @@ export function Preview() {
           {!rangeError && selectedPages.length > 0 && (
             <div className="rounded-lg border border-green-200 bg-green-50 p-3">
               <p className="text-sm font-medium text-green-900">
-                Selected: <span className="font-bold">{selectedPagesCount}</span>{" "}
-                page{selectedPagesCount !== 1 ? "s" : ""}
+                Selected:{" "}
+                <span className="font-bold">{selectedPagesCount}</span> page
+                {selectedPagesCount !== 1 ? "s" : ""}
               </p>
               <p className="mt-1 text-xs text-green-800">
                 {selectedPages.slice(0, 10).join(", ")}

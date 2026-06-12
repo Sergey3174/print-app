@@ -6,55 +6,10 @@ import {
   printerPoints,
   type PrinterPoint,
 } from "../../../widgets/map/Map";
+import { useRecentFiles } from "../../../widgets/app-layout/model/recentFilesContext";
 import { getDistance } from "../../../shared/lib/getDisatnce";
 
 export type WaterAmount = number;
-
-export type FileItem = {
-  id: number;
-  title: string;
-  type: string;
-  pages: number;
-  action: "Print";
-};
-
-export const mockFiles: FileItem[] = [
-  {
-    id: 1,
-    title: "Startup UX Blue Print",
-    type: "PDF",
-    pages: 3,
-    action: "Print",
-  },
-  {
-    id: 2,
-    title: "Resume - Pranav Khatri",
-    type: "PDF",
-    pages: 1,
-    action: "Print",
-  },
-  {
-    id: 3,
-    title: "Project Requirements Doc",
-    type: "PDF",
-    pages: 8,
-    action: "Print",
-  },
-  {
-    id: 4,
-    title: "Marketing Strategy 2024",
-    type: "PDF",
-    pages: 5,
-    action: "Print",
-  },
-  {
-    id: 5,
-    title: "Invoice Template Pack",
-    type: "PDF",
-    pages: 2,
-    action: "Print",
-  },
-];
 
 function FileIcon() {
   return (
@@ -74,6 +29,7 @@ function FileIcon() {
 
 export function HomePage() {
   const navigate = useNavigate();
+  const { recentFiles, setActiveRecentFileById } = useRecentFiles();
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<PrinterPoint | null>(null);
   const [nearestPoint, setNearestPoint] = useState<PrinterPoint | null>(null);
@@ -127,7 +83,9 @@ export function HomePage() {
   );
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col overflow-hidden bg-white pb-18">
+    <section
+      className={`flex flex-col flex-1 w-full min-h-0 overflow-hidden bg-white pb-18`}
+    >
       <Map
         isExpanded={isMapExpanded}
         selectedPoint={selectedPoint}
@@ -147,7 +105,7 @@ export function HomePage() {
             </p>
 
             <div className="flex flex-col gap-3 pb-4">
-              {printerCards.map(({ point, distance, isNearest }) => {
+              {printerCards.map(({ point, distance }) => {
                 const isSelected = selectedPoint?.id === point.id;
 
                 return (
@@ -192,7 +150,8 @@ export function HomePage() {
             </p>
 
             <div className="flex flex-col">
-              {mockFiles.map((doc) => (
+              {recentFiles.length ? (
+                recentFiles.map((doc) => (
                 <div
                   key={doc.id}
                   className="flex items-center gap-3 border-b border-gray-100 py-3"
@@ -209,14 +168,22 @@ export function HomePage() {
                     </p>
                   </div>
 
-                  <button
-                    className="shrink-0 rounded-full bg-gray-900 px-5 py-2 font-medium text-white"
-                    onClick={() => navigate("/app/preview")}
-                  >
-                    Print
-                  </button>
+                    <button
+                      className="shrink-0 rounded-full bg-gray-900 px-5 py-2 font-medium text-white"
+                      onClick={() => {
+                        setActiveRecentFileById(doc.id);
+                        navigate("/app/preview");
+                      }}
+                    >
+                      {doc.action}
+                    </button>
                 </div>
-              ))}
+                ))
+              ) : (
+                <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-500">
+                  No uploaded files yet. Add one from the bottom navigation.
+                </div>
+              )}
             </div>
           </>
         )}

@@ -8,11 +8,14 @@ import { AppLayout } from "../widgets/app-layout/ui/AppLayout";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { OauthPage } from "../pages/auth/ui/OauthPage";
-import { Provider, useDispatch, useSelector } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import { initializeUserFromStorage } from "../entities/user/slice/userSlice";
-import { type AppDispatch, type RootState, store } from "./store/store";
+import { type AppDispatch, store } from "./store/store";
 import "@khmyznikov/pwa-install";
 import { Preview } from "../pages/preview/Preview";
+import { FullPreview } from "../pages/preview/FullPreview";
+import { PaymentPreview } from "../pages/preview/PaymentPreview";
+import { RecentFilesProvider } from "../widgets/app-layout/model/recentFilesContext";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   // const { isAuth, isInitialized } = useSelector(
@@ -90,6 +93,22 @@ function AppRouter() {
           }
         />
         <Route
+          path="/app/full-preview"
+          element={
+            <RequireAuth>
+              <FullPreview />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/app/payment-preview"
+          element={
+            <RequireAuth>
+              <PaymentPreview />
+            </RequireAuth>
+          }
+        />
+        <Route
           path="/app"
           element={
             <RequireAuth>
@@ -111,6 +130,7 @@ function AppRouter() {
 export function App() {
   return (
     <Provider store={store}>
+      <RecentFilesProvider>
       {/* <pwa-install
         use-local-storage
         // install-description="Custom call to install text"
@@ -122,7 +142,8 @@ export function App() {
         description="Tracking water"
         icon="/android-chrome-192x192.png"
       ></pwa-install> */}
-      <AppRouter />
+        <AppRouter />
+      </RecentFilesProvider>
     </Provider>
   );
 }

@@ -60,7 +60,9 @@ export function Map({
   const [userPosition, setUserPosition] = useState<[number, number] | null>(
     null,
   );
-  const mapViewportHeight = isExpanded ? 450 : 300;
+  const mapViewportHeight = isExpanded
+    ? "clamp(100px, calc(100vh - 350px), 400px)"
+    : "clamp(75px, calc(100vh - 450px), 300px)";
 
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
@@ -194,15 +196,17 @@ export function Map({
   return (
     <div className="relative shrink-0">
       <div
-        style={{ height: `${mapViewportHeight}px` }}
-        className="overflow-hidden transition-all duration-300"
+        style={{ height: mapViewportHeight }}
+        className="overflow-hidden h-full transition-all duration-300"
       >
         <div
           ref={mapContainer}
-          style={{ width: "100%", height: "450px" }}
+          style={{
+            width: "100%",
+            height: "clamp(100px, calc(100vh - 350px), 400px)",
+          }}
         />
       </div>
-
       <div className="flex min-h-[52px] w-full items-center justify-between gap-3 border-b border-gray-400/20 p-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1 overflow-hidden font-bold text-gray-700">
