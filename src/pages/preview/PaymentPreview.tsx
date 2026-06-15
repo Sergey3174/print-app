@@ -69,7 +69,7 @@ export function PaymentPreview() {
         <div className="flex-1 overflow-auto px-3 py-3">
           <div className="rounded-[28px] border border-gray-200 bg-white p-4 shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
             <div className="border-b border-dashed border-gray-200 pb-3">
-              <p className="text-lg font-bold text-gray-900">
+              <p className="break-all text-lg font-bold text-gray-900">
                 {payment.fileName}
               </p>
               <p className="mt-1 text-xs text-gray-400">

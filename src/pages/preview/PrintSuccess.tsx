@@ -1,4 +1,4 @@
-import { Check, ChevronLeft, Printer } from "lucide-react";
+import { Check, Printer } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
 import PrintingAnimation from "../../features/auth/model/animation/SuccessRequest";

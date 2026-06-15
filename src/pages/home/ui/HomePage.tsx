@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
 import { Clock3, File, MapPin } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import {
   Map,
   printerPoints,
@@ -10,6 +9,7 @@ import { useRecentFiles } from "../../../widgets/app-layout/model/recentFilesCon
 import { getDistance } from "../../../shared/lib/getDisatnce";
 
 export type WaterAmount = number;
+const PRINT_PRICE_PER_PAGE = 2;
 
 function FileIcon() {
   return (
@@ -28,8 +28,7 @@ function FileIcon() {
 }
 
 export function HomePage() {
-  const navigate = useNavigate();
-  const { recentFiles, setActiveRecentFileById } = useRecentFiles();
+  const { recentFiles } = useRecentFiles();
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<PrinterPoint | null>(null);
   const [nearestPoint, setNearestPoint] = useState<PrinterPoint | null>(null);
@@ -146,42 +145,36 @@ export function HomePage() {
               <span className="text-[15px]">
                 <File size={16} />
               </span>
-              Recent Files
+              History
             </p>
 
             <div className="flex flex-col">
               {recentFiles.length ? (
                 recentFiles.map((doc) => (
-                <div
-                  key={doc.id}
-                  className="flex items-center gap-3 border-b border-gray-100 py-3"
-                >
-                  <FileIcon />
+                  <div
+                    key={doc.id}
+                    className="flex items-center gap-3 border-b border-gray-100 py-3"
+                  >
+                    <FileIcon />
 
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-gray-900">
-                      {doc.title}
-                    </p>
-                    <p className="mt-0.5 text-xs text-gray-400">
-                      {doc.type} · {doc.pages}{" "}
-                      {doc.pages === 1 ? "Page" : "Pages"}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-gray-900">
+                        {doc.title}
+                      </p>
+                      <p className="mt-0.5 text-xs text-gray-400">
+                        {doc.type} · {doc.pages}{" "}
+                        {doc.pages === 1 ? "Page" : "Pages"}
+                      </p>
+                    </div>
+
+                    <p className="shrink-0 px-5 py-2 font-bold">
+                      ${doc.pages * PRINT_PRICE_PER_PAGE}
                     </p>
                   </div>
-
-                    <button
-                      className="shrink-0 rounded-full bg-gray-900 px-5 py-2 font-medium text-white"
-                      onClick={() => {
-                        setActiveRecentFileById(doc.id);
-                        navigate("/app/preview");
-                      }}
-                    >
-                      {doc.action}
-                    </button>
-                </div>
                 ))
               ) : (
                 <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-500">
-                  No uploaded files yet. Add one from the bottom navigation.
+                  No print history yet.
                 </div>
               )}
             </div>

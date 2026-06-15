@@ -15,7 +15,7 @@ export type RecentFileItem = RecentFileLike;
 type RecentFilesContextValue = {
   recentFiles: RecentFileItem[];
   activeRecentFile: RecentFileItem | null;
-  addRecentFile: (file: File) => Promise<void>;
+  openPreviewFile: (file: File) => Promise<void>;
   removeRecentFile: (id: number) => void;
   setActiveRecentFileById: (id: number) => void;
 };
@@ -58,33 +58,28 @@ const RecentFilesContext = createContext<RecentFilesContextValue | null>(null);
 export function RecentFilesProvider({ children }: PropsWithChildren) {
   const [recentFiles, setRecentFiles] =
     useState<RecentFileItem[]>(initialRecentFiles);
-  const [activeRecentFileId, setActiveRecentFileId] = useState<number | null>(
-    null,
-  );
+  const [activeRecentFile, setActiveRecentFile] =
+    useState<RecentFileItem | null>(null);
 
   const value = useMemo<RecentFilesContextValue>(
     () => ({
       recentFiles,
-      activeRecentFile:
-        recentFiles.find((file) => file.id === activeRecentFileId) ?? null,
-      addRecentFile: async (file) => {
-        const recentFileItem = await buildRecentFileItem(file);
-
-        setRecentFiles((prev) => [
-          recentFileItem,
-          ...prev,
-        ]);
-        setActiveRecentFileId(recentFileItem.id);
+      activeRecentFile,
+      openPreviewFile: async (file) => {
+        const previewFileItem = await buildRecentFileItem(file);
+        setActiveRecentFile(previewFileItem);
       },
       removeRecentFile: (id) => {
         setRecentFiles((prev) => prev.filter((file) => file.id !== id));
-        setActiveRecentFileId((prev) => (prev === id ? null : prev));
+        setActiveRecentFile((prev) => (prev?.id === id ? null : prev));
       },
       setActiveRecentFileById: (id) => {
-        setActiveRecentFileId(id);
+        setActiveRecentFile(
+          recentFiles.find((file) => file.id === id && file.file) ?? null,
+        );
       },
     }),
-    [activeRecentFileId, recentFiles],
+    [activeRecentFile, recentFiles],
   );
 
   return (

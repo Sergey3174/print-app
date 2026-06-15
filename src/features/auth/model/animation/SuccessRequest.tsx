@@ -10,6 +10,8 @@ export default function PrintingAnimation() {
         margin: "0 auto",
       }}
     >
+      {/* `lottie-player` is a custom web component registered by the package above. */}
+      {/* @ts-expect-error custom element is provided at runtime */}
       <lottie-player
         src={printingAnimation}
         background="transparent"

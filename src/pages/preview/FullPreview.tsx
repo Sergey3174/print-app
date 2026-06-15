@@ -141,10 +141,13 @@ export function FullPreview() {
       <section className="flex min-h-0 flex-1 flex-col bg-white">
         <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
           <button
-            className="flex items-center gap-1 text-sm font-medium text-gray-800"
+            className="flex min-w-0 items-center gap-1 text-sm font-medium text-gray-800"
             onClick={() => navigate("/app/preview")}
           >
-            <ChevronLeft size={18} /> {session.fileName}
+            <ChevronLeft size={18} className="shrink-0" />
+            <span className="min-w-0 break-all text-left">
+              {session.fileName}
+            </span>
           </button>
         </div>
 

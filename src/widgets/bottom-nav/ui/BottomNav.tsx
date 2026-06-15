@@ -1,6 +1,6 @@
 import { useRef, useState, type ChangeEvent } from "react";
-import { File, Folder, Plus, Trash2, Upload, User } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { File, Home, Plus, Trash2, Upload } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { SettingsEditorSheet } from "../../../pages/profile/ui/SettingsEditorSheet";
 import { useRecentFiles } from "../../app-layout/model/recentFilesContext";
 
@@ -14,7 +14,7 @@ type BottomNavItem = {
 };
 
 const items: BottomNavItem[] = [
-  { to: "/app", icon: File, label: "Home", fillOnActive: false },
+  { to: "/app", icon: Home, label: "Home", fillOnActive: true },
   // { to: "/app/stats", icon: Folder, label: "Files", fillOnActive: false },
   {
     to: "/app",
@@ -35,7 +35,8 @@ export function BottomNav() {
   const [isUploadSheetOpen, setIsUploadSheetOpen] = useState(false);
   const [draftFile, setDraftFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { addRecentFile } = useRecentFiles();
+  const navigate = useNavigate();
+  const { openPreviewFile } = useRecentFiles();
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
@@ -55,14 +56,15 @@ export function BottomNav() {
       return;
     }
 
-    await addRecentFile(draftFile);
+    await openPreviewFile(draftFile);
     setDraftFile(null);
     setIsUploadSheetOpen(false);
+    navigate("/app/preview");
   };
 
   return (
     <>
-      <footer className="absolute bottom-0 left-0 z-[2] grid w-full grid-cols-2 items-center justify-items-center bg-white/95 p-2 shadow-[0_14px_30px_rgba(11,55,134,0.18)]">
+      <footer className="absolute bottom-0 left-0 z-[2] grid w-full grid-cols-2 items-center justify-items-center bg-black/95 p-2 shadow-[0_14px_30px_rgba(11,55,134,0.18)]">
         {items.map((item) => {
           const Icon = item.icon;
 
@@ -72,7 +74,7 @@ export function BottomNav() {
                 key={item.label}
                 type="button"
                 onClick={() => setIsUploadSheetOpen(true)}
-                className="flex h-14 w-14 items-center justify-center bg-transparent text-[#7d8ea4] self-center "
+                className="flex h-14 w-14 items-center justify-center bg-transparent text-gray-400 self-center "
               >
                 <div className="flex flex-col items-center">
                   <span
@@ -81,7 +83,7 @@ export function BottomNav() {
                   >
                     <Icon size={30} />
                   </span>
-                  <span className="text-[11px]">{item.label}</span>
+                  {/* <span className="text-[11px]">{item.label}</span> */}
                 </div>
               </button>
             );
@@ -93,7 +95,7 @@ export function BottomNav() {
               to={item.to}
               className={({ isActive }) =>
                 `flex h-14 w-14 items-center justify-center self-center rounded-[18px] text-xs ${
-                  isActive ? "text-gray-600" : "bg-transparent text-[#7d8ea4]"
+                  isActive ? "text-white" : " text-gray-400"
                 }`
               }
             >
@@ -108,9 +110,13 @@ export function BottomNav() {
                       fill={
                         isActive && item.fillOnActive ? "currentColor" : "none"
                       }
+                      strokeWidth={isActive && item.fillOnActive ? 0 : 2}
                     />
+                    {isActive && item.label === "Home" ? (
+                      <span className="absolute bottom-[4px] h-[9px] w-[6px] rounded-t-[2px] bg-black" />
+                    ) : null}
                   </span>
-                  <span>{item.label}</span>
+                  {/* <span>{item.label}</span> */}
                 </div>
               )}
             </NavLink>
@@ -129,7 +135,7 @@ export function BottomNav() {
       <SettingsEditorSheet
         isOpen={isUploadSheetOpen}
         title="Upload file"
-        description="Choose documents or images to add them to your home list."
+        description="Choose a document or image to open it in print preview."
         onClose={handleCloseSheet}
         onSave={handleSaveFile}
         disabled={!draftFile}
