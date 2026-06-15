@@ -1,4 +1,9 @@
-import { ChevronLeft, Printer } from "lucide-react";
+import {
+  ChevronLeft,
+  EllipsisVertical,
+  Printer,
+  TimerReset,
+} from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
 
@@ -17,9 +22,9 @@ const MOCK_QR_BASE64 =
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start justify-between gap-4 py-3">
-      <span className="text-sm text-gray-400">{label}</span>
-      <span className="text-right text-sm font-semibold text-gray-900">
+    <div className="flex items-center justify-between gap-4">
+      <span className="text-sm text-[#667085]">{label}</span>
+      <span className="text-right text-sm font-semibold text-[#101828]">
         {value}
       </span>
     </div>
@@ -53,95 +58,122 @@ export function PaymentPreview() {
 
   return (
     <MobileShell>
-      <section className="flex min-h-0 flex-1 flex-col bg-[#f8f8f8]">
-        <div className="flex items-center justify-between border-b border-gray-100 bg-white px-4 py-4">
+      <section className="flex min-h-0 flex-1 flex-col bg-[#f4f6f8]">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/5 bg-white/95 px-4 py-3 backdrop-blur">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#101828] transition-colors hover:bg-black/5"
+              onClick={() => navigate("/app/preview")}
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <h1 className="truncate text-[20px] font-bold tracking-[-0.01em] text-[#101828]">
+              Payment Details
+            </h1>
+          </div>
           <button
-            className="flex items-center gap-1 text-sm font-medium text-gray-800"
-            onClick={() => navigate("/app/preview")}
+            type="button"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-[#667085]"
+            aria-label="More options"
           >
-            <ChevronLeft size={18} /> Payment Details
+            <EllipsisVertical size={18} />
           </button>
-          {/* <button className="text-gray-500">
-            <Share2 size={18} />
-          </button> */}
         </div>
 
-        <div className="flex-1 overflow-auto px-3 py-3">
-          <div className="rounded-[28px] border border-gray-200 bg-white p-4 shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
-            <div className="border-b border-dashed border-gray-200 pb-3">
-              <p className="break-all text-lg font-bold text-gray-900">
-                {payment.fileName}
-              </p>
-              <p className="mt-1 text-xs text-gray-400">
-                Print reservation summary
-              </p>
-            </div>
+        <div className="flex-1 overflow-auto px-4 pb-36 pt-6">
+          <div className="mx-auto w-full max-w-[420px]">
+            <div className="overflow-hidden rounded-[22px] border border-black/5 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.08)]">
+              <div className="border-b border-black/8 px-4 py-4">
+                <p className="break-all text-base font-semibold text-[#101828]">
+                  {payment.fileName}
+                </p>
+                <p className="mt-1 text-xs font-medium tracking-[0.02em] text-[#667085]">
+                  Print reservation summary
+                </p>
+              </div>
 
-            <div className="divide-y divide-gray-100">
-              <DetailRow
-                label="Document pages"
-                value={`${payment.totalPages}`}
-              />
-              <DetailRow
-                label="Pages to print"
-                value={`${payment.selectedPagesCount}`}
-              />
-              <DetailRow label="Type" value={payment.type} />
-              <DetailRow label="Sides" value={payment.sides} />
-              <DetailRow label="Per sheet" value={`${payment.pagesPerSheet}`} />
-            </div>
+              <div className="space-y-4 px-4 py-4">
+                <DetailRow
+                  label="Document pages"
+                  value={`${payment.totalPages}`}
+                />
+                <DetailRow
+                  label="Pages to print"
+                  value={`${payment.selectedPagesCount}`}
+                />
+                <DetailRow label="Type" value={payment.type} />
+                <DetailRow label="Sides" value={payment.sides} />
+                <DetailRow
+                  label="Per sheet"
+                  value={`${payment.pagesPerSheet}`}
+                />
+              </div>
 
-            <div className="mt-2 flex items-center justify-between border-t border-dashed border-gray-200 pt-4">
-              <span className="text-base font-semibold text-gray-900">
-                Total
-              </span>
-              <span className="text-xl font-bold text-rose-400">
-                $ {payment.totalPrice.toFixed(2)}
-              </span>
-            </div>
-
-            <div className="mt-5 flex justify-center">
-              <div className="w-[210px]">
-                <div className="rounded-[18px] bg-white p-3 shadow-[0_16px_32px_rgba(15,23,42,0.08)]">
-                  <img
-                    src={MOCK_QR_BASE64}
-                    alt="Mock payment QR code"
-                    className="h-auto w-full"
-                  />
-                </div>
+              <div className="flex items-center justify-between border-t border-dashed border-black/10 bg-white px-4 py-4">
+                <span className="text-base font-semibold text-[#101828]">
+                  Total
+                </span>
+                <span className="text-[28px] font-bold tracking-[-0.02em] text-[#d92d20]">
+                  $ {payment.totalPrice.toFixed(2)}
+                </span>
               </div>
             </div>
 
-            <p className="mt-4 text-center text-xs text-gray-400">
-              Show this QR code at the printer to continue payment.
-            </p>
+            <div className="mt-6 flex flex-col items-center">
+              <div className="relative flex aspect-square w-full items-center justify-center gap-5 overflow-hidden rounded-[28px] border border-black/5 bg-white p-6 shadow-[0_12px_34px_rgba(15,23,42,0.12)]">
+                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-black/5 blur-3xl" />
+                <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-sky-200/25 blur-3xl" />
+
+                <div className="relative z-10 rounded-[22px] bg-white p-4 shadow-[inset_0_0_0_1px_rgba(15,23,42,0.05),0_8px_24px_rgba(15,23,42,0.08)]">
+                  <img
+                    src={MOCK_QR_BASE64}
+                    alt="Mock payment QR code"
+                    className="h-auto w-48 sm:w-56"
+                  />
+                </div>
+
+                <div className="absolute bottom-6 z-10 flex items-center gap-2 rounded-full bg-[#eef2f6] px-4 py-2 text-[#475467]">
+                  <TimerReset size={16} className="text-[#1570ef]" />
+                  <span className="text-xs font-semibold">
+                    Expires in 04:59
+                  </span>
+                </div>
+              </div>
+
+              <p className="mt-7 max-w-[280px] text-center text-sm leading-6 text-[#667085]">
+                Show this QR code at the printer to continue payment.
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 border-t border-gray-200 bg-white px-4 py-4">
-          <button
-            type="button"
-            onClick={() => navigate("/app/preview")}
-            className="rounded-2xl border border-gray-300 bg-white py-3 text-sm font-semibold text-gray-700"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              navigate("/app/print-success", {
-                state: {
-                  fileName: payment.fileName,
-                  selectedPagesCount: payment.selectedPagesCount,
-                  totalPrice: payment.totalPrice,
-                },
-              })
-            }
-            className="flex items-center justify-center gap-2 rounded-2xl bg-gray-900 py-3 text-sm font-semibold text-white"
-          >
-            <Printer size={16} />
-            Print
-          </button>
+        <div className="border-t border-black/5 bg-white/90 px-4 py-4 backdrop-blur">
+          <div className="mx-auto grid w-full max-w-[420px] grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => navigate("/app/preview")}
+              className="h-14 rounded-2xl border border-[#101828] bg-white text-sm font-semibold text-[#101828] transition-transform active:scale-[0.99]"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                navigate("/app/print-success", {
+                  state: {
+                    fileName: payment.fileName,
+                    selectedPagesCount: payment.selectedPagesCount,
+                    totalPrice: payment.totalPrice,
+                  },
+                })
+              }
+              className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-[#111827] text-sm font-semibold text-white shadow-[0_14px_30px_rgba(17,24,39,0.18)] transition-transform active:scale-[0.99]"
+            >
+              <Printer size={16} />
+              Print
+            </button>
+          </div>
         </div>
       </section>
     </MobileShell>

@@ -19,7 +19,7 @@ const items: BottomNavItem[] = [
   {
     to: "/app",
     icon: Plus,
-    label: "Upload",
+    label: "UPLOAD",
     // type: "special",
     action: "upload",
   },
@@ -74,16 +74,16 @@ export function BottomNav() {
                 key={item.label}
                 type="button"
                 onClick={() => setIsUploadSheetOpen(true)}
-                className="flex h-14 w-14 items-center justify-center bg-transparent text-gray-400 self-center "
+                className="flex self-center rounded-xl bg-white px-4 py-2 text-black transition duration-150 ease-out active:scale-95 active:bg-white/80"
               >
-                <div className="flex flex-col items-center">
+                <div className="flex items-center gap-2 transition duration-150 active:opacity-80">
                   <span
                     className="relative flex items-center justify-center font-extrabold tracking-[0.22em]"
                     aria-hidden="true"
                   >
-                    <Icon size={30} />
+                    <Upload size={22} />
                   </span>
-                  {/* <span className="text-[11px]">{item.label}</span> */}
+                  <span className="text-[14px] font-medium">{item.label}</span>
                 </div>
               </button>
             );
