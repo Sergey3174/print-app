@@ -124,7 +124,6 @@ export function SettingsEditorSheet({
             type="button"
             className="flex-1 rounded-2xl border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
             onClick={onClose}
-            disabled={disabled}
           >
             Cancel
           </button>

@@ -128,6 +128,15 @@ export function PaymentPreview() {
           </button>
           <button
             type="button"
+            onClick={() =>
+              navigate("/app/print-success", {
+                state: {
+                  fileName: payment.fileName,
+                  selectedPagesCount: payment.selectedPagesCount,
+                  totalPrice: payment.totalPrice,
+                },
+              })
+            }
             className="flex items-center justify-center gap-2 rounded-2xl bg-gray-900 py-3 text-sm font-semibold text-white"
           >
             <Printer size={16} />

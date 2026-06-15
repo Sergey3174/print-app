@@ -15,7 +15,7 @@ type BottomNavItem = {
 
 const items: BottomNavItem[] = [
   { to: "/app", icon: File, label: "Home", fillOnActive: false },
-  { to: "/app/stats", icon: Folder, label: "Files", fillOnActive: false },
+  // { to: "/app/stats", icon: Folder, label: "Files", fillOnActive: false },
   {
     to: "/app",
     icon: Plus,
@@ -23,12 +23,12 @@ const items: BottomNavItem[] = [
     // type: "special",
     action: "upload",
   },
-  {
-    to: "/app/profile",
-    icon: User,
-    label: "Account",
-    fillOnActive: false,
-  },
+  // {
+  //   to: "/app/profile",
+  //   icon: User,
+  //   label: "Account",
+  //   fillOnActive: false,
+  // },
 ];
 
 export function BottomNav() {
@@ -62,7 +62,7 @@ export function BottomNav() {
 
   return (
     <>
-      <footer className="absolute bottom-0 left-0 z-[2] grid w-full grid-cols-4 items-center justify-items-center bg-white/95 p-2 shadow-[0_14px_30px_rgba(11,55,134,0.18)]">
+      <footer className="absolute bottom-0 left-0 z-[2] grid w-full grid-cols-2 items-center justify-items-center bg-white/95 p-2 shadow-[0_14px_30px_rgba(11,55,134,0.18)]">
         {items.map((item) => {
           const Icon = item.icon;
 

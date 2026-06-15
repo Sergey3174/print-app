@@ -15,6 +15,7 @@ import "@khmyznikov/pwa-install";
 import { Preview } from "../pages/preview/Preview";
 import { FullPreview } from "../pages/preview/FullPreview";
 import { PaymentPreview } from "../pages/preview/PaymentPreview";
+import { PrintSuccess } from "../pages/preview/PrintSuccess";
 import { RecentFilesProvider } from "../widgets/app-layout/model/recentFilesContext";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -105,6 +106,14 @@ function AppRouter() {
           element={
             <RequireAuth>
               <PaymentPreview />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/app/print-success"
+          element={
+            <RequireAuth>
+              <PrintSuccess />
             </RequireAuth>
           }
         />

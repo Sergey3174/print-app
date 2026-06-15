@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@khmyznikov/pwa-install": "^0.6.3",
+    "@lottiefiles/lottie-player": "^2.0.12",
     "@reduxjs/toolkit": "^2.11.2",
     "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.16.1",
