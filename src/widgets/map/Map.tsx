@@ -61,8 +61,8 @@ export function Map({
     null,
   );
   const mapViewportHeight = isExpanded
-    ? "clamp(100px, calc(100vh - 350px), 400px)"
-    : "clamp(75px, calc(100vh - 450px), 300px)";
+    ? "clamp(100px, calc(100vh - 350px), 350px)"
+    : "clamp(75px, calc(100vh - 450px), 200px)";
 
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
@@ -203,11 +203,11 @@ export function Map({
           ref={mapContainer}
           style={{
             width: "100%",
-            height: "clamp(100px, calc(100vh - 350px), 400px)",
+            height: "clamp(100px, calc(100vh - 350px), 350px)",
           }}
         />
       </div>
-      <div className="flex min-h-[52px] w-full items-center justify-between gap-3 border-b border-gray-400/20 p-3">
+      <div className="flex min-h-[40px] w-full items-center justify-between gap-3 border-b border-gray-400/20 py-1 px-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1 overflow-hidden font-bold text-gray-700">
             <div className="flex shrink-0 items-center gap-1">

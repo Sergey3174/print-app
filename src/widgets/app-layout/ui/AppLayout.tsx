@@ -1,10 +1,9 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { MobileShell } from "../../mobile-shell/ui/MobileShell";
-import { BottomNav } from "../../bottom-nav/ui/BottomNav";
 import { useRef, useState, type ChangeEvent } from "react";
 import { useRecentFiles } from "../model/recentFilesContext";
 import { SettingsEditorSheet } from "../../../pages/profile/ui/SettingsEditorSheet";
-import { Trash2, Upload } from "lucide-react";
+import { Globe, Printer, Trash2, Upload } from "lucide-react";
 
 export function AppLayout() {
   const [isUploadSheetOpen, setIsUploadSheetOpen] = useState(false);
@@ -37,15 +36,39 @@ export function AppLayout() {
     navigate("/app/preview");
   };
 
+  const header = (
+    <header className="border-b border-white/25 bg-[linear-gradient(180deg,rgba(255,255,255,0.62),rgba(251,249,248,0.38))] shadow-[0_12px_32px_rgba(15,23,42,0.08),inset_0_-1px_0_rgba(255,255,255,0.35)] backdrop-blur-xs">
+      <div className="flex h-16 w-full items-center justify-between px-3">
+        <div className="flex items-center gap-4">
+          <div className="rounded-full border border-white/60 bg-[#eef2ff]/85 p-2 text-[#1d4ed8] shadow-[0_6px_16px_rgba(29,78,216,0.12)] transition-transform duration-150 active:scale-95">
+            <Printer size={20} />
+          </div>
+          <h1 className="text-2xl font-bold tracking-[-0.02em] text-[#1a237e]">
+            PrintBox
+          </h1>
+        </div>
+
+        <button
+          type="button"
+          className="rounded-full border border-white/45 bg-white/35 p-2 text-[#1a237e] shadow-[0_4px_14px_rgba(15,23,42,0.06)] transition duration-150 active:scale-95 hover:bg-white/50"
+          aria-label="Change language"
+        >
+          <Globe size={20} />
+        </button>
+      </div>
+    </header>
+  );
+
   return (
-    <MobileShell>
+    <MobileShell header={header}>
       <Outlet />
+
       <button
-        className="absolute bottom-5 right-5 h-15 w-15 bg-black text-white flex justify-center items-center rounded-full"
+        className="absolute bottom-5 right-1/2 translate-x-1/2 uppercase min-w-[240px] h-12 px-4  gap-2  bg-black text-white flex justify-center items-center rounded-full"
         onClick={() => setIsUploadSheetOpen(true)}
         aria-label="Upload file"
       >
-        <Upload />
+        <Upload size={20} /> Upload document
       </button>
       <input
         ref={inputRef}

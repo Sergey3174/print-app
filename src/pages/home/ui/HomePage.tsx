@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { Clock3, File, MapPin } from "lucide-react";
+import { Clock3, FileText, MapPin, Printer } from "lucide-react";
 import {
   Map,
   printerPoints,
@@ -9,22 +9,49 @@ import { useRecentFiles } from "../../../widgets/app-layout/model/recentFilesCon
 import { getDistance } from "../../../shared/lib/getDisatnce";
 
 export type WaterAmount = number;
-const PRINT_PRICE_PER_PAGE = 2;
 
-function FileIcon() {
-  return (
-    <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center shrink-0">
-      <svg width="24" height="24" viewBox="0 0 20 24" fill="none">
-        <path
-          d="M2 0h11l7 7v15a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"
-          fill="#c5d0e0"
-        />
-        <path d="M13 0l7 7h-5a2 2 0 0 1-2-2V0z" fill="#a0b0c8" />
-        <rect x="4" y="12" width="12" height="1.5" rx="0.75" fill="#8899b0" />
-        <rect x="4" y="15" width="9" height="1.5" rx="0.75" fill="#8899b0" />
-      </svg>
-    </div>
-  );
+const PRINT_PRICE_PER_PAGE = 2000;
+
+function formatHistoryDate(timestamp: number) {
+  const diffMs = Date.now() - timestamp;
+  const oneDay = 24 * 60 * 60 * 1000;
+
+  if (diffMs < oneDay) {
+    return "Today";
+  }
+
+  if (diffMs < oneDay * 2) {
+    return "Yesterday";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    month: "short",
+  }).format(timestamp);
+}
+
+function getHistoryBadge(type: string) {
+  if (type === "PDF" || type === "DOCX" || type === "DOC") {
+    return {
+      label: type,
+      className: "bg-emerald-100 text-emerald-700",
+      icon: <FileText size={14} />,
+    };
+  }
+
+  return {
+    label: type,
+    className: "bg-indigo-100 text-indigo-700",
+    icon: <Printer size={14} />,
+  };
+}
+
+function getPrintMode(type: string) {
+  if (["JPG", "JPEG", "PNG", "WEBP"].includes(type)) {
+    return "Color";
+  }
+
+  return "B&W";
 }
 
 export function HomePage() {
@@ -82,104 +109,154 @@ export function HomePage() {
   );
 
   return (
-    <section
-      className={`flex flex-col flex-1 w-full min-h-0 overflow-hidden bg-white pb-18`}
-    >
-      <Map
-        isExpanded={isMapExpanded}
-        selectedPoint={selectedPoint}
-        onToggleExpanded={() => setIsMapExpanded((prev) => !prev)}
-        onNearestPointChange={handleNearestPointChange}
-        onSelectPoint={setSelectedPoint}
-      />
+    <section className="flex w-full flex-1 flex-col overflow-hidden bg-[#fbf9f8] ">
+      <div className="min-h-0 flex-1 overflow-auto px-4 pt-20">
+        <div className="mx-auto flex w-full max-w-[720px] flex-col gap-6">
+          <div className="overflow-hidden rounded-[22px] border border-black/5 bg-white shadow-[0_8px_28px_rgba(17,24,39,0.08)]">
+            <Map
+              isExpanded={isMapExpanded}
+              selectedPoint={selectedPoint}
+              onToggleExpanded={() => setIsMapExpanded((prev) => !prev)}
+              onNearestPointChange={handleNearestPointChange}
+              onSelectPoint={setSelectedPoint}
+            />
+          </div>
 
-      <div className="min-h-0 flex-1 overflow-auto px-4 pt-5">
-        {isMapExpanded ? (
-          <>
-            <p className="mb-3 flex items-center gap-1.5 text-[13px] font-semibold text-gray-900">
-              <span className="text-[15px]">
-                <Clock3 size={16} />
-              </span>
-              Nearby Print Points
-            </p>
+          <section className="space-y-3">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-[22px] font-bold leading-none tracking-[-0.02em] text-[#101828]">
+                Nearby Print Points
+              </h2>
 
-            <div className="flex flex-col gap-3 pb-4">
-              {printerCards.map(({ point, distance }) => {
+              <button
+                type="button"
+                onClick={() => setIsMapExpanded((prev) => !prev)}
+                className="shrink-0 text-xs font-semibold uppercase leading-none tracking-[0.14em] text-[#1d4ed8]"
+              >
+                {isMapExpanded ? "Collapse Map" : "View Map"}
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              {printerCards.map(({ point, distance, isNearest }) => {
                 const isSelected = selectedPoint?.id === point.id;
+                const distanceLabel =
+                  distance < 1
+                    ? `${Math.round(distance * 1000)} m`
+                    : `${distance.toFixed(1)} km`;
 
                 return (
                   <button
                     key={point.id}
                     type="button"
                     onClick={() => setSelectedPoint(point)}
-                    className={`flex items-center justify-between border-b border-gray-200  px-1 py-3 text-left transition ${
-                      isSelected ? " bg-gray-50 rounded-xl" : " bg-white"
+                    className={`flex items-center gap-4 rounded-[12px] border px-3 py-3 text-left shadow-[0_4px_12px_rgba(26,35,126,0.08)] transition ${
+                      isSelected
+                        ? "border-[#c6c5d4] bg-[#f5f3f3]"
+                        : "border-transparent bg-white"
                     }`}
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-3">
-                        <p className="truncate text-sm font-semibold text-gray-900">
-                          {point.title}
-                        </p>
-                        <div className="flex items-center gap-3 text-sm font-medium ">
-                          {/* {isNearest && <span>Nearest</span>} */}
-                          <span className="flex items-center gap-1">
-                            <MapPin size={12} />
-                            {Math.round(distance * 1000)} mtrs
-                          </span>
-                        </div>
-                      </div>
+                    <div
+                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
+                        isNearest
+                          ? "bg-[#dbe5ff] text-[#1d4ed8]"
+                          : "bg-[#f2f4f7] text-[#667085]"
+                      }`}
+                    >
+                      <Printer size={20} />
                     </div>
 
-                    <span className="ml-3 rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white">
-                      Go
-                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[15px] font-bold text-[#1b1c1c]">
+                        {point.title}
+                      </p>
+                      <p className="mt-1 flex items-center gap-1.5 text-xs text-[#454652]">
+                        <MapPin size={12} />
+                        {isNearest
+                          ? "Nearest self-service printer"
+                          : "Self-service printer point"}
+                      </p>
+                    </div>
+
+                    <div className="shrink-0 text-right">
+                      <div
+                        className={`text-xs font-bold ${
+                          isNearest ? "text-[#006876]" : "text-[#454652]"
+                        }`}
+                      >
+                        {distanceLabel}
+                      </div>
+                      <div
+                        className={`mt-1 text-xs ${
+                          isNearest ? "text-[#006876]" : "text-[#ba1a1a]"
+                        }`}
+                      >
+                        {isNearest ? "Online" : "Offline"}
+                      </div>
+                    </div>
                   </button>
                 );
               })}
             </div>
-          </>
-        ) : (
-          <>
-            <p className="mb-3 flex items-center gap-1.5 text-[13px] font-semibold text-gray-900">
-              <span className="text-[15px]">
-                <File size={16} />
-              </span>
-              History
-            </p>
+          </section>
 
-            <div className="flex flex-col">
-              {recentFiles.length ? (
-                recentFiles.map((doc) => (
-                  <div
-                    key={doc.id}
-                    className="flex items-center gap-3 border-b border-gray-100 py-3"
-                  >
-                    <FileIcon />
-
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-gray-900">
-                        {doc.title}
-                      </p>
-                      <p className="mt-0.5 text-xs text-gray-400">
-                        {doc.type} · {doc.pages}{" "}
-                        {doc.pages === 1 ? "Page" : "Pages"}
-                      </p>
-                    </div>
-
-                    <p className="shrink-0 px-5 py-2 font-bold">
-                      ${doc.pages * PRINT_PRICE_PER_PAGE}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-500">
-                  No print history yet.
-                </div>
-              )}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Clock3 size={18} className="text-[#667085]" />
+              <h2 className="text-[22px] font-bold tracking-[-0.02em] text-[#101828]">
+                Print History
+              </h2>
             </div>
-          </>
-        )}
+
+            {recentFiles.length ? (
+              <div className="hide-scrollbar flex snap-x gap-4 overflow-x-auto pb-24">
+                {recentFiles.map((doc) => {
+                  const badge = getHistoryBadge(doc.type);
+                  const printMode = getPrintMode(doc.type);
+
+                  return (
+                    <article
+                      key={doc.id}
+                      className="min-w-[280px] snap-start rounded-[22px] border border-black/5 bg-white p-4 shadow-[0_6px_22px_rgba(17,24,39,0.06)]"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[#1d4ed8]">{badge.icon}</span>
+                          <span
+                            className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] ${badge.className}`}
+                          >
+                            {badge.label}
+                          </span>
+                        </div>
+                        <span className="text-xs text-[#667085]">
+                          {formatHistoryDate(doc.createdAt)}
+                        </span>
+                      </div>
+
+                      <h3 className="mt-4 truncate text-base font-semibold text-[#101828]">
+                        {doc.title}
+                      </h3>
+
+                      <div className="mt-4 flex items-center justify-between border-t border-black/6 pt-3">
+                        <span className="text-xs text-[#667085]">
+                          {doc.pages} {doc.pages === 1 ? "page" : "pages"} •{" "}
+                          {printMode}
+                        </span>
+                        <span className="text-lg font-bold text-[#1d4ed8]">
+                          Rp {doc.pages * PRINT_PRICE_PER_PAGE}
+                        </span>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="rounded-[22px] border border-dashed border-black/10 bg-white px-5 py-10 text-center text-sm text-[#667085]">
+                No print history yet.
+              </div>
+            )}
+          </section>
+        </div>
       </div>
     </section>
   );
