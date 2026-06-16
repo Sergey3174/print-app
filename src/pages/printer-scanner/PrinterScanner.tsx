@@ -97,7 +97,6 @@ export function PrinterScanner() {
   const hasHandledResultRef = useRef(false);
 
   const [statusText, setStatusText] = useState("Preparing camera");
-  const [cameraLabel, setCameraLabel] = useState("");
   const [scannerError, setScannerError] = useState<string | null>(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [scanResult, setScanResult] = useState<string | null>(null);
@@ -128,7 +127,6 @@ export function PrinterScanner() {
     setScannerError(null);
     setScanResult(null);
     setIsCameraReady(false);
-    setCameraLabel("");
     setStatusText("Requesting camera access");
     hasHandledResultRef.current = false;
 
@@ -171,11 +169,6 @@ export function PrinterScanner() {
       videoRef.current.srcObject = stream;
       await videoRef.current.play();
 
-      const activeTrack = stream.getVideoTracks()[0];
-      const resolvedCameraLabel =
-        preferredCamera?.label || activeTrack?.label || "";
-
-      setCameraLabel(resolvedCameraLabel);
       setStatusText("Point the camera at the printer QR code");
       setIsCameraReady(true);
 
