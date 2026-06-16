@@ -1,4 +1,4 @@
-// import { X } from "lucide-react";
+import { X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
@@ -10,8 +10,12 @@ type SettingsEditorSheetProps = {
   description?: string;
   children: ReactNode;
   onClose: () => void;
-  onSave: () => void;
+  onSave?: () => void;
   disabled?: boolean;
+  showActionButtons?: boolean;
+  showCloseButton?: boolean;
+  saveLabel?: string;
+  cancelLabel?: string;
 };
 
 export function SettingsEditorSheet({
@@ -22,6 +26,10 @@ export function SettingsEditorSheet({
   onClose,
   onSave,
   disabled = false,
+  showActionButtons = true,
+  showCloseButton = false,
+  saveLabel = "Save",
+  cancelLabel = "Cancel",
 }: SettingsEditorSheetProps) {
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [isVisible, setIsVisible] = useState(false);
@@ -97,45 +105,55 @@ export function SettingsEditorSheet({
       />
 
       <div
-        className={`fixed inset-x-0 bottom-0 z-30 rounded-t-[18px] border-t border-gray-200 bg-[linear-gradient(180deg,#ffffff_0%,#f7f7f7_100%)] px-5 pb-8 pt-4 transition-transform duration-300 shadow-[0_-20px_45px_rgba(15,23,42,0.16)] ${
+        className={`fixed inset-x-0 bottom-0 z-30 rounded-t-[28px] border-t border-[#e4e2e1] bg-[#fbf9f8] px-4 pb-6 pt-3 transition-transform duration-300 shadow-[0_-4px_12px_rgba(26,35,126,0.08)] sm:left-1/2 sm:max-w-md sm:-translate-x-1/2 sm:rounded-[28px] ${
           isVisible ? "translate-y-0" : "translate-y-full"
         }`}
       >
-        <div className="mb-5 flex items-start justify-between gap-4">
+        <div className="flex justify-center pb-1 sm:hidden">
+          <div className="h-1 w-8 rounded-full bg-[#c6c5d4]" />
+        </div>
+
+        <div className="mb-5 flex items-start justify-between gap-4 border-b border-[#f0eded] pb-4">
           <div>
-            <h3 className="text-xl font-bold text-gray-900">{title}</h3>
+            <h3 className="text-xl font-bold text-[#1b1c1c]">{title}</h3>
             {description && (
-              <p className="mt-1 text-sm text-gray-500">{description}</p>
+              <p className="mt-1 text-sm text-[#454652]">{description}</p>
             )}
           </div>
-          {/* <button
-            type="button"
-            className="rounded-full border border-gray-200 bg-white p-2 text-gray-500 transition hover:bg-gray-50"
-            onClick={onClose}
-          >
-            <X size={18} />
-          </button> */}
+
+          {showCloseButton ? (
+            <button
+              type="button"
+              className="rounded-full p-2 text-[#454652] transition hover:bg-[#f0eded]"
+              onClick={onClose}
+              aria-label="Close sheet"
+            >
+              <X size={20} />
+            </button>
+          ) : null}
         </div>
 
         {children}
 
-        <div className="mt-6 flex gap-3 border-t border-gray-200 pt-4">
-          <button
-            type="button"
-            className="flex-1 rounded-2xl border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
-            onClick={onClose}
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="flex-1 rounded-2xl bg-gray-900 px-4 py-3 font-semibold text-white shadow-[0_12px_24px_rgba(17,24,39,0.2)] transition hover:bg-black disabled:opacity-40"
-            onClick={onSave}
-            disabled={disabled}
-          >
-            Save
-          </button>
-        </div>
+        {showActionButtons ? (
+          <div className="mt-6 flex gap-3 border-t border-gray-200 pt-4">
+            <button
+              type="button"
+              className="flex-1 rounded-2xl border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
+              onClick={onClose}
+            >
+              {cancelLabel}
+            </button>
+            <button
+              type="button"
+              className="flex-1 rounded-2xl bg-gray-900 px-4 py-3 font-semibold text-white shadow-[0_12px_24px_rgba(17,24,39,0.2)] transition hover:bg-black disabled:opacity-40"
+              onClick={onSave}
+              disabled={disabled}
+            >
+              {saveLabel}
+            </button>
+          </div>
+        ) : null}
       </div>
     </>,
     document.body,

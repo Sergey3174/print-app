@@ -3,37 +3,41 @@ import { MobileShell } from "../../mobile-shell/ui/MobileShell";
 import { useRef, useState, type ChangeEvent } from "react";
 import { useRecentFiles } from "../model/recentFilesContext";
 import { SettingsEditorSheet } from "../../../pages/profile/ui/SettingsEditorSheet";
-import { Globe, Printer, Trash2, Upload } from "lucide-react";
+import { FileText, Globe, Info, Printer, Upload } from "lucide-react";
+import { toast } from "react-toastify";
+import { validatePreviewFile } from "../../../shared/lib/file/validatePreviewFile";
 
 export function AppLayout() {
   const [isUploadSheetOpen, setIsUploadSheetOpen] = useState(false);
-  const [draftFile, setDraftFile] = useState<File | null>(null);
+  const [isOpeningFile, setIsOpeningFile] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { openPreviewFile } = useRecentFiles();
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
-
-    setDraftFile(file);
     event.target.value = "";
-  };
 
-  const handleCloseSheet = () => {
-    setDraftFile(null);
-    setIsUploadSheetOpen(false);
-  };
-
-  const handleSaveFile = async () => {
-    if (!draftFile) {
-      setIsUploadSheetOpen(false);
+    if (!file) {
       return;
     }
 
-    await openPreviewFile(draftFile);
-    setDraftFile(null);
-    setIsUploadSheetOpen(false);
-    navigate("/app/preview");
+    const validationResult = validatePreviewFile(file);
+
+    if (!validationResult.isValid) {
+      toast.error(validationResult.errorMessage);
+      return;
+    }
+
+    setIsOpeningFile(true);
+
+    try {
+      await openPreviewFile(file);
+      setIsUploadSheetOpen(false);
+      navigate("/app/preview");
+    } finally {
+      setIsOpeningFile(false);
+    }
   };
 
   const header = (
@@ -73,53 +77,52 @@ export function AppLayout() {
       <input
         ref={inputRef}
         type="file"
-        accept=".pdf,.doc,.docx,image/*"
+        accept=".pdf,.docx,.jpg,.jpeg,.png,image/jpeg,image/png"
         className="hidden"
         onChange={handleFileChange}
       />
 
       <SettingsEditorSheet
         isOpen={isUploadSheetOpen}
-        title="Upload file"
-        description="Choose a document or image to open it in print preview."
-        onClose={handleCloseSheet}
-        onSave={handleSaveFile}
-        disabled={!draftFile}
+        title="Upload documents"
+        description="Pick a document or image and we'll open it in preview right away."
+        onClose={() => setIsUploadSheetOpen(false)}
+        showActionButtons={false}
+        showCloseButton={false}
       >
         <div className="flex flex-col gap-4">
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-[#0d6be8]/40 bg-[#eef6ff] px-4 py-5 text-sm font-semibold text-[#0d6be8]"
+            disabled={isOpeningFile}
+            className="group flex w-full items-center gap-4 rounded-2xl border border-[#c6c5d4] bg-[#f5f3f3] p-4 text-left transition active:scale-[0.98] disabled:cursor-wait disabled:opacity-70"
           >
-            <Upload size={18} />
-            Choose files
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#1a237e] text-white">
+              <FileText size={22} />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="text-base font-semibold text-[#000666]">
+                {isOpeningFile ? "Opening file..." : "Choose file"}
+              </p>
+              <p className="text-xs text-[#454652]">
+                PDF, DOCX, JPG or PNG up to 50 MB
+              </p>
+            </div>
+
+            <Upload
+              size={18}
+              className="shrink-0 text-[#767683] transition group-hover:text-[#000666]"
+            />
           </button>
 
-          {draftFile ? (
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-gray-900">
-                  {draftFile.name.replace(/\.[^.]+$/, "")}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {(draftFile.name.split(".").pop() ?? "file").toUpperCase()} |{" "}
-                  {draftFile.size >= 1024 * 1024
-                    ? `${(draftFile.size / (1024 * 1024)).toFixed(1)} MB`
-                    : `${Math.max(1, Math.round(draftFile.size / 1024))} KB`}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setDraftFile(null)}
-                className="rounded-full border border-red-200 bg-red-50 p-2 text-red-500 transition hover:bg-red-100"
-                aria-label="Remove selected file"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          ) : null}
+          <div className="flex items-start gap-3 rounded-xl border border-[#bdc2ff] bg-[#e0e0ff]/40 p-3">
+            <Info size={16} className="mt-0.5 shrink-0 text-[#1a237e]" />
+            <p className="text-xs leading-relaxed text-[#343d96]">
+              The preview opens automatically right after selection, without an
+              extra save step.
+            </p>
+          </div>
         </div>
       </SettingsEditorSheet>
     </MobileShell>
