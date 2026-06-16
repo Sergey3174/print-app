@@ -111,7 +111,7 @@ export function Map({
         setUserPosition([pos.coords.longitude, pos.coords.latitude]);
       },
       (error) => console.log("Geolocation denied:", error),
-      { enableHighAccuracy: true, timeout: 5000 },
+      { enableHighAccuracy: true, timeout: 15000 },
     );
   }, []);
 
