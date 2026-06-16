@@ -448,7 +448,7 @@ export function Preview() {
                   {selectedPagesCount} page{selectedPagesCount !== 1 ? "s" : ""}
                 </p>
                 <p className="text-[32px] font-extrabold tracking-[-0.03em] text-[#000666]">
-                  $ {totalPrice}
+                  Rp {totalPrice}
                 </p>
               </div>
               <button
