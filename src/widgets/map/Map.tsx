@@ -59,6 +59,7 @@ export function Map({
   const [userPosition, setUserPosition] = useState<[number, number] | null>(
     null,
   );
+  const [geolocationError, setGeolocationError] = useState<string | null>(null);
   const mapViewportHeight = isExpanded
     ? "clamp(100px, calc(100vh - 350px), 350px)"
     : "clamp(75px, calc(100vh - 450px), 200px)";
@@ -104,13 +105,31 @@ export function Map({
   }, [onSelectPoint]);
 
   useEffect(() => {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      setGeolocationError("Geolocation is not supported on this device");
+      return;
+    }
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        setGeolocationError(null);
         setUserPosition([pos.coords.longitude, pos.coords.latitude]);
       },
-      (error) => console.log("Geolocation denied:", error),
+      (error) => {
+        console.log("Geolocation denied:", error);
+
+        if (error.code === error.PERMISSION_DENIED) {
+          setGeolocationError("Location access denied");
+          return;
+        }
+
+        if (error.code === error.TIMEOUT) {
+          setGeolocationError("Location request timed out");
+          return;
+        }
+
+        setGeolocationError("Could not determine your location");
+      },
       { enableHighAccuracy: true, timeout: 15000 },
     );
   }, []);
@@ -246,6 +265,9 @@ export function Map({
           <MousePointer2 fill="black" size={16} />
         </button>
       </div>
+      {geolocationError ? (
+        <div className="px-3 py-2 text-sm text-red-600">{geolocationError}</div>
+      ) : null}
     </div>
   );
 }
