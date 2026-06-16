@@ -7,6 +7,7 @@ import {
 } from "../../../widgets/map/Map";
 import { useRecentFiles } from "../../../widgets/app-layout/model/recentFilesContext";
 import { getDistance } from "../../../shared/lib/getDisatnce";
+import { formatCurrency } from "../../../shared/lib/formatCurrency";
 
 export type WaterAmount = number;
 
@@ -68,8 +69,8 @@ export function HomePage() {
     if (!nearestPoint) return [];
 
     const basePosition: [number, number] = currentPosition ?? [
-      nearestPoint.position[1],
       nearestPoint.position[0],
+      nearestPoint.position[1],
     ];
 
     const nearestCard = {
@@ -83,8 +84,8 @@ export function HomePage() {
       .map((point) => ({
         point,
         distance: getDistance(
-          basePosition[0],
           basePosition[1],
+          basePosition[0],
           point.position[1],
           point.position[0],
         ),
@@ -109,7 +110,7 @@ export function HomePage() {
   );
 
   return (
-    <section className="flex w-full flex-1 flex-col overflow-hidden bg-[#fbf9f8] ">
+    <section className="flex w-full flex-1 flex-col overflow-hidden bg-[linear-gradient(135deg,#fbf9f8_0%,#e0e0ff_100%)]">
       <div className="min-h-0 flex-1 overflow-auto px-4 pt-20">
         <div className="mx-auto flex w-full max-w-[720px] flex-col gap-6">
           <div className="overflow-hidden rounded-[22px] border border-black/5 bg-white shadow-[0_8px_28px_rgba(17,24,39,0.08)]">
@@ -149,6 +150,11 @@ export function HomePage() {
                   <button
                     key={point.id}
                     type="button"
+                    tabIndex={-1}
+                    onPointerDown={(event) => event.preventDefault()}
+                    onTouchStart={(event) => event.preventDefault()}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onFocus={(event) => event.currentTarget.blur()}
                     onClick={() => setSelectedPoint(point)}
                     className={`flex items-center gap-4 rounded-[12px] border px-3 py-3 text-left shadow-[0_4px_12px_rgba(26,35,126,0.08)] transition ${
                       isSelected
@@ -221,7 +227,7 @@ export function HomePage() {
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
-                          <span className="text-[#1d4ed8]">{badge.icon}</span>
+                          <span className="text-[#1a237e]">{badge.icon}</span>
                           <span
                             className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] ${badge.className}`}
                           >
@@ -242,8 +248,8 @@ export function HomePage() {
                           {doc.pages} {doc.pages === 1 ? "page" : "pages"} •{" "}
                           {printMode}
                         </span>
-                        <span className="text-lg font-bold text-[#1d4ed8]">
-                          Rp {doc.pages * PRINT_PRICE_PER_PAGE}
+                        <span className="text-lg font-bold text-[#1a237e]">
+                          {formatCurrency(doc.pages * PRINT_PRICE_PER_PAGE)}
                         </span>
                       </div>
                     </article>

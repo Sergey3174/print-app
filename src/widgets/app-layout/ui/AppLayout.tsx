@@ -3,9 +3,11 @@ import { MobileShell } from "../../mobile-shell/ui/MobileShell";
 import { useRef, useState, type ChangeEvent } from "react";
 import { useRecentFiles } from "../model/recentFilesContext";
 import { SettingsEditorSheet } from "../../../pages/profile/ui/SettingsEditorSheet";
-import { FileText, Globe, Info, Printer, Upload } from "lucide-react";
+import { FileText, Globe, Info, Upload } from "lucide-react";
 import { toast } from "react-toastify";
 import { validatePreviewFile } from "../../../shared/lib/file/validatePreviewFile";
+import EN from "../../../assets/en.png";
+import ID from "../../../assets/id.png";
 
 export function AppLayout() {
   const [isUploadSheetOpen, setIsUploadSheetOpen] = useState(false);
@@ -13,6 +15,7 @@ export function AppLayout() {
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { openPreviewFile } = useRecentFiles();
+  const [selectedLanguage, setSelectedLanguage] = useState<"en" | "id">("en");
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
@@ -44,9 +47,9 @@ export function AppLayout() {
     <header className="border-b border-white/25 bg-[linear-gradient(180deg,rgba(255,255,255,0.62),rgba(251,249,248,0.38))] shadow-[0_12px_32px_rgba(15,23,42,0.08),inset_0_-1px_0_rgba(255,255,255,0.35)] backdrop-blur-xs">
       <div className="flex h-16 w-full items-center justify-between px-3">
         <div className="flex items-center gap-4">
-          <div className="rounded-full border border-white/60 bg-[#eef2ff]/85 p-2 text-[#1d4ed8] shadow-[0_6px_16px_rgba(29,78,216,0.12)] transition-transform duration-150 active:scale-95">
+          {/* <div className="rounded-full border border-white/60 bg-[#eef2ff]/85 p-2 text-[#1d4ed8] shadow-[0_6px_16px_rgba(29,78,216,0.12)] transition-transform duration-150 active:scale-95">
             <Printer size={20} />
-          </div>
+          </div> */}
           <h1 className="text-2xl font-bold tracking-[-0.02em] text-[#1a237e]">
             PrintBox
           </h1>
@@ -54,10 +57,17 @@ export function AppLayout() {
 
         <button
           type="button"
-          className="rounded-full border border-white/45 bg-white/35 p-2 text-[#1a237e] shadow-[0_4px_14px_rgba(15,23,42,0.06)] transition duration-150 active:scale-95 hover:bg-white/50"
+          className="rounded-full border h-10 w-10 border-white/45 bg-white/35 p-0.5 text-[#1a237e] shadow-[0_4px_14px_rgba(15,23,42,0.06)] transition duration-150 active:scale-95 hover:bg-white/50"
           aria-label="Change language"
+          onClick={() =>
+            setSelectedLanguage(selectedLanguage === "en" ? "id" : "en")
+          }
         >
-          <Globe size={20} />
+          <img
+            src={selectedLanguage === "en" ? EN : ID}
+            alt={selectedLanguage === "en" ? "English" : "Indonesian"}
+            className="h-full w-full "
+          />
         </button>
       </div>
     </header>

@@ -11,6 +11,7 @@ import { setPreviewSession, type PagePreview } from "./previewSession";
 import { buildDocxPreviews } from "./lib/buildDocxPreviews";
 import { buildPdfPreviews } from "./lib/buildPdfPreviews";
 import { isPreviewImageExtension } from "./lib/isPreviewImageExtension";
+import { formatCurrency } from "../../shared/lib/formatCurrency";
 
 const DOCX_PAGE_WIDTH = 794;
 const DOCX_DEFAULT_PAGE_HEIGHT = 1123;
@@ -448,7 +449,7 @@ export function Preview() {
                   {selectedPagesCount} page{selectedPagesCount !== 1 ? "s" : ""}
                 </p>
                 <p className="text-[32px] font-extrabold tracking-[-0.03em] text-[#000666]">
-                  Rp {totalPrice}
+                  {formatCurrency(totalPrice)}
                 </p>
               </div>
               <button

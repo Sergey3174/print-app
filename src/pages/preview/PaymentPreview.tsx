@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
+import { formatCurrency } from "../../shared/lib/formatCurrency";
 
 type PaymentPreviewState = {
   fileName: string;
@@ -175,8 +176,7 @@ export function PaymentPreview() {
                   Total Amount
                 </span>
                 <div className="text-4xl font-extrabold text-[#000666]">
-                  <span className="mr-1 text-2xl">Rp</span>
-                  {payment.totalPrice.toFixed(2)}
+                  {formatCurrency(payment.totalPrice)}
                 </div>
               </div>
             </div>

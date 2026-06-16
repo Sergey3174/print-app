@@ -3,6 +3,7 @@ import { Check, Printer } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
 import PrintingAnimation from "../../features/auth/model/animation/SuccessRequest";
+import { formatCurrency } from "../../shared/lib/formatCurrency";
 
 type PrintSuccessState = {
   fileName?: string;
@@ -119,7 +120,7 @@ export function PrintSuccess() {
               <div className="mt-2 flex items-center justify-center gap-3 text-sm font-semibold text-[#454652]">
                 <span>{pagesCount || 1} pages</span>
                 <span className="h-1 w-1 rounded-full bg-[#bdc2ff]" />
-                <span>Rp{totalPrice.toFixed(2)}</span>
+                <span>{formatCurrency(totalPrice)}</span>
               </div>
             </div>
 

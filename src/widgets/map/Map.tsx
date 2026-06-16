@@ -7,7 +7,7 @@ import { getDistance } from "../../shared/lib/getDisatnce";
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 const jakarta: [number, number] = [106.8456, -6.2088];
-const defaultCurrentPosition: [number, number] = [jakarta[1], jakarta[0]];
+const defaultCurrentPosition: [number, number] = jakarta;
 
 export type PrinterPoint = {
   id: number;
@@ -74,8 +74,10 @@ export function Map({
       zoom: 13,
     });
 
+    const popupOptions = { offset: 25, focusAfterOpen: false };
+
     printerPoints.forEach((marker) => {
-      const popup = new mapboxgl.Popup({ offset: 25 }).setText(marker.title);
+      const popup = new mapboxgl.Popup(popupOptions).setText(marker.title);
       const markerInstance = new mapboxgl.Marker()
         .setLngLat(marker.position)
         .setPopup(popup)
@@ -87,7 +89,7 @@ export function Map({
       pointMarkers.current.set(marker.id, markerInstance);
     });
 
-    const defaultPopup = new mapboxgl.Popup({ offset: 25 }).setText(
+    const defaultPopup = new mapboxgl.Popup(popupOptions).setText(
       "Jakarta (default location)",
     );
     defaultMarker.current = new mapboxgl.Marker({ color: "#6b7280" })
@@ -139,14 +141,14 @@ export function Map({
   const nearestPoint = useMemo(() => {
     return printerPoints.reduce((nearest, marker) => {
       const currentDistance = getDistance(
-        currentPosition[0],
         currentPosition[1],
+        currentPosition[0],
         marker.position[1],
         marker.position[0],
       );
       const nearestDistance = getDistance(
-        currentPosition[0],
         currentPosition[1],
+        currentPosition[0],
         nearest.position[1],
         nearest.position[0],
       );
@@ -157,8 +159,8 @@ export function Map({
 
   const nearestDistance = useMemo(() => {
     return getDistance(
-      currentPosition[0],
       currentPosition[1],
+      currentPosition[0],
       nearestPoint.position[1],
       nearestPoint.position[0],
     );
@@ -171,8 +173,8 @@ export function Map({
 
   const activeDistance = useMemo(() => {
     return getDistance(
-      currentPosition[0],
       currentPosition[1],
+      currentPosition[0],
       activePoint.position[1],
       activePoint.position[0],
     );
@@ -193,6 +195,14 @@ export function Map({
     pointMarkers.current.get(selectedPoint.id)?.togglePopup();
   }, [selectedPoint]);
 
+  useEffect(() => {
+    if (!map.current) return;
+
+    requestAnimationFrame(() => {
+      map.current?.resize();
+    });
+  }, [isExpanded]);
+
   return (
     <div className="relative shrink-0">
       <div
@@ -203,7 +213,7 @@ export function Map({
           ref={mapContainer}
           style={{
             width: "100%",
-            height: "clamp(100px, calc(100vh - 350px), 350px)",
+            height: mapViewportHeight,
           }}
         />
       </div>
@@ -211,7 +221,6 @@ export function Map({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1 overflow-hidden font-bold text-gray-700">
             <div className="flex shrink-0 items-center gap-1">
-              <MousePointer2 fill="black" size={16} />
               <span className="font-normal">Printer at</span>
             </div>
             <div className="flex min-w-0 items-center gap-1 overflow-hidden">
@@ -225,8 +234,17 @@ export function Map({
           </div>
         </div>
 
-        <button onClick={onToggleExpanded} className="shrink-0">
-          <Scan size={20} />
+        <button
+          className="shrink-0"
+          onClick={() =>
+            map.current?.flyTo({
+              center: currentPosition,
+              zoom: 15,
+              duration: 1000,
+            })
+          }
+        >
+          <MousePointer2 fill="black" size={16} />
         </button>
       </div>
     </div>
