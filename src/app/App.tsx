@@ -17,6 +17,7 @@ import { FullPreview } from "../pages/preview/FullPreview";
 import { PaymentPreview } from "../pages/preview/PaymentPreview";
 import { PrintSuccess } from "../pages/preview/PrintSuccess";
 import { RecentFilesProvider } from "../widgets/app-layout/model/recentFilesContext";
+import { PrinterScanner } from "../pages/printer-scanner/PrinterScanner";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   // const { isAuth, isInitialized } = useSelector(
@@ -83,6 +84,14 @@ function AppRouter() {
             <RequireGuest>
               <OauthPage />
             </RequireGuest>
+          }
+        />
+        <Route
+          path="/app/printer-scanner"
+          element={
+            <RequireAuth>
+              <PrinterScanner />
+            </RequireAuth>
           }
         />
         <Route

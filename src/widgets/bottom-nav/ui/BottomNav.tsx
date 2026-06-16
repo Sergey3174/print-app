@@ -60,7 +60,7 @@ export function BottomNav() {
     try {
       await openPreviewFile(file);
       setIsUploadSheetOpen(false);
-      navigate("/app/preview");
+      navigate("/app/printer-scanner");
     } finally {
       setIsOpeningFile(false);
     }

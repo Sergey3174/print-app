@@ -105,7 +105,7 @@ export function SettingsEditorSheet({
       />
 
       <div
-        className={`fixed inset-x-0 bottom-0 z-30 rounded-t-[28px] border-t border-[#e4e2e1] bg-[#fbf9f8] px-4 pb-6 pt-3 transition-transform duration-300 shadow-[0_-4px_12px_rgba(26,35,126,0.08)] sm:left-1/2 sm:max-w-md sm:-translate-x-1/2 sm:rounded-[28px] ${
+        className={`fixed inset-x-0 bottom-0 z-30 rounded-t-[28px] border-t border-[#e4e2e1] bg-[#fbf9f8] px-4 pb-6 pt-3 transition-transform duration-300 shadow-[0_-4px_12px_rgba(26,35,126,0.08)]  ${
           isVisible ? "translate-y-0" : "translate-y-full"
         }`}
       >
