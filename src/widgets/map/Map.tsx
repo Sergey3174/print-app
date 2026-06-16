@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { MapPin, MousePointer2, Scan } from "lucide-react";
+import { MapPin, MousePointer2 } from "lucide-react";
 import { getDistance } from "../../shared/lib/getDisatnce";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
@@ -33,7 +33,7 @@ export const printerPoints: PrinterPoint[] = [
 type MapProps = {
   isExpanded: boolean;
   selectedPoint: PrinterPoint | null;
-  onToggleExpanded: () => void;
+  onToggleExpanded?: () => void;
   onNearestPointChange: (
     point: PrinterPoint,
     distance: number,
@@ -45,7 +45,6 @@ type MapProps = {
 export function Map({
   isExpanded,
   selectedPoint,
-  onToggleExpanded,
   onNearestPointChange,
   onSelectPoint,
 }: MapProps) {

@@ -3,7 +3,7 @@ import { MobileShell } from "../../mobile-shell/ui/MobileShell";
 import { useRef, useState, type ChangeEvent } from "react";
 import { useRecentFiles } from "../model/recentFilesContext";
 import { SettingsEditorSheet } from "../../../pages/profile/ui/SettingsEditorSheet";
-import { FileText, Globe, Info, Upload } from "lucide-react";
+import { FileText, Info, Upload } from "lucide-react";
 import { toast } from "react-toastify";
 import { validatePreviewFile } from "../../../shared/lib/file/validatePreviewFile";
 import EN from "../../../assets/en.png";
