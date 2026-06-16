@@ -130,7 +130,7 @@ export function Map({
 
         setGeolocationError("Could not determine your location");
       },
-      { enableHighAccuracy: true, timeout: 15000 },
+      { enableHighAccuracy: false, timeout: 15000, maximumAge: 30000 },
     );
   }, []);
 
