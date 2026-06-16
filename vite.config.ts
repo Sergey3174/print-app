@@ -30,8 +30,8 @@ export default defineConfig({
       },
 
       manifest: {
-        name: "Water tracker",
-        short_name: "Water tracker",
+        name: "Print",
+        short_name: "Print",
         theme_color: "#00ace8",
         background_color: "#ffffff",
         display: "standalone",

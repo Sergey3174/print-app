@@ -110,12 +110,12 @@ export function SettingsEditorSheet({
         }`}
       >
         <div className="flex justify-center pb-1 sm:hidden">
-          <div className="h-1 w-8 rounded-full bg-[#c6c5d4]" />
+          <div className="h-1 w-8 rounded-full bg-[#bdc2ff]" />
         </div>
 
         <div className="mb-5 flex items-start justify-between gap-4 border-b border-[#f0eded] pb-4">
           <div>
-            <h3 className="text-xl font-bold text-[#1b1c1c]">{title}</h3>
+            <h3 className="text-xl font-bold text-[#1a237e]">{title}</h3>
             {description && (
               <p className="mt-1 text-sm text-[#454652]">{description}</p>
             )}
@@ -124,7 +124,7 @@ export function SettingsEditorSheet({
           {showCloseButton ? (
             <button
               type="button"
-              className="rounded-full p-2 text-[#454652] transition hover:bg-[#f0eded]"
+              className="rounded-full p-2 text-[#4c56af] transition hover:bg-[#e0e0ff]/60"
               onClick={onClose}
               aria-label="Close sheet"
             >
@@ -139,14 +139,14 @@ export function SettingsEditorSheet({
           <div className="mt-6 flex gap-3 border-t border-gray-200 pt-4">
             <button
               type="button"
-              className="flex-1 rounded-2xl border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
+              className="flex-1 rounded-2xl border border-[#bdc2ff] bg-white px-4 py-3 font-semibold text-[#4c56af] transition hover:bg-[#f7f7ff] disabled:opacity-50"
               onClick={onClose}
             >
               {cancelLabel}
             </button>
             <button
               type="button"
-              className="flex-1 rounded-2xl bg-gray-900 px-4 py-3 font-semibold text-white shadow-[0_12px_24px_rgba(17,24,39,0.2)] transition hover:bg-black disabled:opacity-40"
+              className="flex-1 rounded-2xl bg-[#1a237e] px-4 py-3 font-semibold text-white shadow-[0_12px_24px_rgba(26,35,126,0.22)] transition hover:bg-[#111a63] disabled:opacity-40"
               onClick={onSave}
               disabled={disabled}
             >

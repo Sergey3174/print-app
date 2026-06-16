@@ -56,7 +56,7 @@ function FullDocxPage({ node }: { node: HTMLElement }) {
   return (
     <div
       ref={frameRef}
-      className="relative h-full w-full overflow-hidden bg-[#f3f3f3]"
+      className="relative h-full w-full overflow-hidden bg-[#f7f7ff]"
     />
   );
 }
@@ -67,7 +67,7 @@ function FullPreviewCard({ preview }: { preview: PagePreview }) {
       <img
         src={preview.src}
         alt="full preview"
-        className="h-full w-full object-contain bg-[#f3f3f3]"
+        className="h-full w-full object-contain bg-[#f7f7ff]"
       />
     );
   }
@@ -119,16 +119,16 @@ export function FullPreview() {
   if (!session || !session.previews.length) {
     return (
       <MobileShell>
-        <section className="flex min-h-0 flex-1 flex-col bg-white">
-          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
+        <section className="flex min-h-0 flex-1 flex-col bg-[linear-gradient(135deg,#fbf9f8_0%,#e0e0ff_100%)]">
+          <div className="flex items-center justify-between px-4 py-4">
             <button
-              className="flex items-center gap-1 text-sm font-medium text-gray-800"
+              className="flex items-center gap-1 text-sm font-semibold text-[#1b1c1c]"
               onClick={() => navigate("/app/preview")}
             >
               <ChevronLeft size={18} /> Back
             </button>
           </div>
-          <div className="flex flex-1 items-center justify-center px-6 text-center text-sm text-gray-500">
+          <div className="flex flex-1 items-center justify-center px-6 text-center text-sm text-[#767683]">
             No preview data yet. Open a document in Printing Preview first.
           </div>
         </section>
@@ -138,10 +138,10 @@ export function FullPreview() {
 
   return (
     <MobileShell>
-      <section className="flex min-h-0 flex-1 flex-col bg-white">
-        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
+      <section className="flex min-h-0 flex-1 flex-col bg-[linear-gradient(135deg,#fbf9f8_0%,#e0e0ff_100%)]">
+        <div className="sticky top-0 z-10 flex items-center justify-between bg-transparent px-4 py-4 backdrop-blur-md">
           <button
-            className="flex min-w-0 items-center gap-1 text-sm font-medium text-gray-800"
+            className="flex min-w-0 items-center gap-1 text-sm font-semibold text-[#1b1c1c]"
             onClick={() => navigate("/app/preview")}
           >
             <ChevronLeft size={18} className="shrink-0" />
@@ -153,17 +153,17 @@ export function FullPreview() {
 
         <div
           ref={scrollRef}
-          className="flex-1 snap-y snap-mandatory overflow-y-auto px-3 py-3"
+          className="flex-1 snap-y snap-mandatory overflow-y-auto px-4 py-3"
         >
           <div className="mx-auto flex w-full max-w-[430px] flex-col gap-4">
             {session.previews.map((preview, index) => (
               <div
                 key={index}
                 data-preview-page
-                className="snap-start rounded-[28px] border border-gray-200 bg-[#ececec] p-2 shadow-[0_18px_40px_rgba(15,23,42,0.08)]"
+                className="snap-start rounded-[22px] border border-white/30 bg-white/70 p-3 shadow-[0_10px_32px_rgba(26,35,126,0.08)] backdrop-blur-xl"
               >
                 <div
-                  className="w-full overflow-hidden rounded-[22px] bg-white"
+                  className="w-full overflow-hidden rounded-[16px] bg-white shadow-[inset_0_0_0_1px_rgba(26,35,126,0.04)]"
                   style={{ aspectRatio: `${A4_RATIO}` }}
                 >
                   <FullPreviewCard preview={preview} />
@@ -173,17 +173,19 @@ export function FullPreview() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-600">
-          <span>
+        <div className="px-4 pb-4 pt-2">
+          <div className="flex items-center justify-between rounded-[22px] border border-white/30 bg-white/70 px-4 py-3 text-sm font-medium text-[#454652] shadow-[0_8px_32px_rgba(26,35,126,0.05)] backdrop-blur-xl">
+            <span>
             {currentIndex + 1} / {session.previews.length}
-          </span>
-          <button
-            type="button"
-            onClick={() => navigate("/app/preview")}
-            className="rounded-full bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white"
-          >
-            View Printing Options
-          </button>
+            </span>
+            <button
+              type="button"
+              onClick={() => navigate("/app/preview")}
+              className="rounded-full bg-[#1a237e] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(26,35,126,0.18)]"
+            >
+              View Printing Options
+            </button>
+          </div>
         </div>
       </section>
     </MobileShell>

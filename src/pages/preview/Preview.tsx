@@ -25,13 +25,15 @@ function ToggleOption({
   onChange: (val: string) => void;
 }) {
   return (
-    <div className="flex w-full gap-1 rounded-xl bg-gray-100 p-1">
+    <div className="flex w-full gap-1 rounded-2xl bg-white/35 p-1 backdrop-blur-sm">
       {options.map((opt) => (
         <button
           key={opt}
           onClick={() => onChange(opt)}
-          className={`flex-1 rounded-lg px-4 py-1.5 text-sm font-medium transition-colors ${
-            active === opt ? "bg-white text-black shadow-sm" : "text-gray-400"
+          className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
+            active === opt
+              ? "bg-white text-[#000666] shadow-[0_8px_20px_rgba(26,35,126,0.08)]"
+              : "text-[#767683]"
           }`}
         >
           {opt}
@@ -75,7 +77,7 @@ function DocxPageCard({ node }: { node: HTMLElement }) {
   return (
     <div
       ref={ref}
-      className="relative h-full w-full overflow-hidden rounded-lg bg-white"
+      className="relative h-full w-full overflow-hidden rounded-[18px] bg-white"
     />
   );
 }
@@ -85,7 +87,7 @@ function PageCard({ preview }: { preview: PagePreview }) {
     return (
       <img
         src={preview.src}
-        className="h-full w-full rounded-lg object-contain bg-white"
+        className="h-full w-full rounded-[18px] object-contain bg-white"
         alt="page"
       />
     );
@@ -97,11 +99,11 @@ function PageCard({ preview }: { preview: PagePreview }) {
 function Placeholder() {
   return (
     <div className="flex h-full w-full flex-col gap-1 p-2">
-      <div className="h-2 w-3/4 rounded bg-gray-200" />
-      <div className="h-1.5 w-1/2 rounded bg-gray-100" />
-      <div className="mt-1 flex-1 rounded bg-gray-100" />
-      <div className="h-1.5 w-full rounded bg-gray-100" />
-      <div className="h-1.5 w-4/5 rounded bg-gray-100" />
+      <div className="h-2 w-3/4 rounded bg-[#d8dcff]" />
+      <div className="h-1.5 w-1/2 rounded bg-[#eef1ff]" />
+      <div className="mt-1 flex-1 rounded bg-[#eef1ff]" />
+      <div className="h-1.5 w-full rounded bg-[#eef1ff]" />
+      <div className="h-1.5 w-4/5 rounded bg-[#eef1ff]" />
     </div>
   );
 }
@@ -262,23 +264,25 @@ export function Preview() {
 
   return (
     <MobileShell>
-      <section className="flex min-h-0 flex-1 flex-col overflow-auto bg-white">
-        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
+      <section className="flex min-h-0 flex-1 flex-col overflow-auto bg-[linear-gradient(135deg,#fbf9f8_0%,#e0e0ff_100%)]">
+        <div className="sticky top-0 z-10 flex items-center gap-2 bg-transparent px-4 py-4 backdrop-blur-md">
           <button
-            className="flex items-center gap-1 text-sm font-medium text-gray-800"
+            className="flex items-center gap-1 text-sm font-semibold text-[#1b1c1c]"
             onClick={() => navigate("/app")}
           >
-            <ChevronLeft size={18} /> Printing Preview
+            <ChevronLeft size={18} />
           </button>
-          <div className="w-[76px]" />
+          <h1 className="text-[20px] font-semibold tracking-[-0.01em] text-[#1b1c1c]">
+            Preview
+          </h1>
         </div>
 
-        <div className="mx-3 my-2 rounded-xl border border-gray-300">
-          <div className="flex items-center justify-between px-4 py-2">
-            <span className="max-w-[60%] truncate text-sm font-medium text-gray-900">
+        <div className="mx-4 mb-4 rounded-[28px] border border-white/30 bg-white/70 p-4 shadow-[0_8px_32px_rgba(26,35,126,0.05)] backdrop-blur-xl">
+          <div className="flex items-center justify-between gap-3 px-2 pb-3">
+            <span className="max-w-[60%] truncate text-sm font-semibold text-[#000666]">
               {fileName}
             </span>
-            <span className="shrink-0 text-sm font-bold text-gray-900">
+            <span className="shrink-0 rounded-full bg-[#e0e0ff]/70 px-3 py-1 text-xs font-bold uppercase tracking-[0.08em] text-[#1a237e]">
               {totalPages} Pages
             </span>
           </div>
@@ -286,18 +290,20 @@ export function Preview() {
           <div
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex gap-3 overflow-x-auto px-4 pb-3"
+            className="flex gap-3 overflow-x-auto px-2 pb-3"
             style={{ scrollbarWidth: "none" }}
           >
             {loading ? (
-              <div className="flex h-48 w-36 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
-                <span className="text-xs text-gray-400">Loading...</span>
+              <div className="flex h-48 w-36 shrink-0 items-center justify-center rounded-[22px] border border-white/50 bg-white/75">
+                <span className="text-xs font-medium text-[#767683]">
+                  Loading...
+                </span>
               </div>
             ) : previews ? (
               previews.map((preview, i) => (
                 <div
                   key={i}
-                  className="h-48 w-36 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-50"
+                  className="h-48 w-36 shrink-0 overflow-hidden rounded-[12px] border border-black/15 bg-white/85 "
                 >
                   <PageCard preview={preview} />
                 </div>
@@ -306,7 +312,7 @@ export function Preview() {
               Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-48 w-36 shrink-0 rounded-lg border border-gray-200 bg-gray-50"
+                  className="h-48 w-36 shrink-0 rounded-[22px] border border-white/50 bg-white/85"
                 >
                   <Placeholder />
                 </div>
@@ -314,12 +320,13 @@ export function Preview() {
             )}
           </div>
 
-          <div className="flex items-center justify-between gap-3 px-4 pb-2">
-            <div className="mx-auto h-1 max-w-25 flex-1 overflow-hidden rounded-full bg-gray-200">
+          <div className="flex items-center justify-between gap-3 px-2 pb-1 pt-1">
+            <div className="mx-auto h-1.5 max-w-25 flex-1 overflow-hidden rounded-full bg-[#d8dcff]">
               <div
                 className="h-full w-10 rounded-full bg-gray-800 transition-all duration-150"
                 style={{
                   marginLeft: `calc(${scrollProgress} * (100% - 40px))`,
+                  background: "linear-gradient(90deg,#1a237e 0%,#4c56af 100%)",
                 }}
               />
             </div>
@@ -327,129 +334,147 @@ export function Preview() {
               type="button"
               onClick={() => navigate("/app/full-preview")}
               disabled={!previews?.length}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-500 disabled:opacity-40"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/50 bg-white/70 text-[#1a237e] shadow-[0_8px_20px_rgba(26,35,126,0.06)] disabled:opacity-40"
             >
               <Scan size={14} />
             </button>
           </div>
         </div>
 
-        <div className="mx-4 h-px bg-gray-100" />
-
-        <div className="flex flex-col divide-y divide-gray-100 px-4">
-          <div className="flex items-center justify-between gap-4 py-3.5">
-            <span className="w-30 shrink-0 text-sm text-gray-500">Copy</span>
-            <div className="flex h-[44px] w-full items-center justify-between gap-1 rounded-xl bg-gray-100 px-6 py-1.5 p-1">
-              <button
-                onClick={() => setPagesPerSheet((p) => Math.max(1, p - 1))}
-                className="text-lg font-semibold leading-none text-gray-800"
-              >
-                -
-              </button>
-              <span className="w-4 text-center text-lg font-semibold leading-none">
-                {pagesPerSheet}
+        <div className="mx-4 mb-4 rounded-[28px] border border-white/30 bg-white/70 p-5 shadow-[0_8px_32px_rgba(26,35,126,0.05)] backdrop-blur-xl">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-4">
+              <span className="w-10 shrink-0 text-sm font-semibold text-[#454652]">
+                Copy
               </span>
-              <button
-                onClick={() => setPagesPerSheet((p) => Math.min(8, p + 1))}
-                className="text-lg font-semibold leading-none text-gray-800"
-              >
-                +
-              </button>
+              <div className="flex h-[46px] w-full items-center justify-between gap-1 rounded-2xl bg-white/35 px-6 py-1.5 backdrop-blur-sm">
+                <button
+                  onClick={() => setPagesPerSheet((p) => Math.max(1, p - 1))}
+                  className="text-lg font-semibold leading-none text-[#1a237e]"
+                >
+                  -
+                </button>
+                <span className="w-4 text-center text-lg font-bold leading-none text-[#000666]">
+                  {pagesPerSheet}
+                </span>
+                <button
+                  onClick={() => setPagesPerSheet((p) => Math.min(8, p + 1))}
+                  className="text-lg font-semibold leading-none text-[#1a237e]"
+                >
+                  +
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="flex items-center justify-between gap-4 py-3">
-            <span className="w-30 shrink-0 text-sm text-gray-500">Pages</span>
-            <div className="flex w-full gap-1 rounded-xl bg-gray-100 p-1">
-              <button
-                onClick={() => {
-                  setPageMode("custom");
-                  setIsPageSheetOpen(true);
-                }}
-                className={`flex-1 rounded-lg px-4 py-1.5 text-sm font-medium transition-colors ${
-                  pageMode === "custom"
-                    ? "bg-white text-black shadow-sm"
-                    : "text-gray-400"
-                }`}
-              >
-                Custom
-              </button>
-              <button
-                onClick={() => {
-                  setPageMode("all");
-                  setIsPageSheetOpen(false);
-                }}
-                className={`flex-1 rounded-lg px-4 py-1.5 text-sm font-medium transition-colors ${
-                  pageMode === "all"
-                    ? "bg-white text-black shadow-sm"
-                    : "text-gray-400"
-                }`}
-              >
-                All Pages
-              </button>
-            </div>
-          </div>
+            <div className="h-px bg-[#c6c5d4]/50" />
 
-          {pageMode === "custom" && selectedPages.length > 0 && (
-            <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-2 text-xs text-gray-600">
-              <span className="font-medium">Selected:</span>
-              <span className="font-semibold text-gray-900">
-                {selectedPages.slice(0, 5).join(", ")}
-                {selectedPages.length > 5 ? "..." : ""}
+            <div className="flex items-center justify-between gap-4">
+              <span className="w-10 shrink-0 text-sm font-semibold text-[#454652]">
+                Pages
               </span>
+              <div className="flex w-full gap-1 rounded-2xl bg-white/35 p-1 backdrop-blur-sm">
+                <button
+                  onClick={() => {
+                    setPageMode("custom");
+                    setIsPageSheetOpen(true);
+                  }}
+                  className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
+                    pageMode === "custom"
+                      ? "bg-white text-[#000666] shadow-[0_8px_20px_rgba(26,35,126,0.08)]"
+                      : "text-[#767683]"
+                  }`}
+                >
+                  Custom
+                </button>
+                <button
+                  onClick={() => {
+                    setPageMode("all");
+                    setIsPageSheetOpen(false);
+                  }}
+                  className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
+                    pageMode === "all"
+                      ? "bg-white text-[#000666] shadow-[0_8px_20px_rgba(26,35,126,0.08)]"
+                      : "text-[#767683]"
+                  }`}
+                >
+                  All Pages
+                </button>
+              </div>
             </div>
-          )}
 
-          <div className="flex items-center justify-between gap-4 py-3">
-            <span className="w-30 shrink-0 text-sm text-gray-500">Type</span>
-            <ToggleOption
-              options={["Color", "B&W"]}
-              active={type}
-              onChange={setType}
-            />
-          </div>
+            {pageMode === "custom" && selectedPages.length > 0 && (
+              <div className="flex items-center gap-2 rounded-2xl bg-[#e0e0ff]/45 px-4 py-3 text-xs text-[#454652]">
+                <span className="font-semibold text-[#1a237e]">Selected:</span>
+                <span className="font-semibold text-[#000666]">
+                  {selectedPages.slice(0, 5).join(", ")}
+                  {selectedPages.length > 5 ? "..." : ""}
+                </span>
+              </div>
+            )}
 
-          <div className="flex items-center justify-between gap-4 py-3">
-            <span className="w-30 shrink-0 text-sm text-gray-500">Sides</span>
-            <ToggleOption
-              options={["Both Sides", "One Side"]}
-              active={sides}
-              onChange={setSides}
-            />
+            <div className="h-px bg-[#c6c5d4]/50" />
+
+            <div className="flex items-center justify-between gap-4">
+              <span className="w-10 shrink-0 text-sm font-semibold text-[#454652]">
+                Type
+              </span>
+              <ToggleOption
+                options={["Color", "B&W"]}
+                active={type}
+                onChange={setType}
+              />
+            </div>
+
+            <div className="h-px bg-[#c6c5d4]/50" />
+
+            <div className="flex items-center justify-between gap-4">
+              <span className="w-10 shrink-0 text-sm font-semibold text-[#454652]">
+                Sides
+              </span>
+              <ToggleOption
+                options={["Both Sides", "One Side"]}
+                active={sides}
+                onChange={setSides}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="mt-auto flex items-center justify-between px-4 pb-5 pt-3">
-          <div>
-            <p className="text-[10px] text-gray-400">
-              (Rs {pricePerPage} / Pg)
-            </p>
-            <p className="text-xl font-semibold text-gray-900">
-              $ {totalPrice}
-            </p>
-            <p className="mt-0.5 text-[10px] text-gray-400">
-              {selectedPagesCount} page{selectedPagesCount !== 1 ? "s" : ""}
-            </p>
+        <div className="mt-auto px-4 pb-5">
+          <div className="rounded-[28px] border border-white/30 bg-white/70 p-5 shadow-[0_8px_32px_rgba(26,35,126,0.05)] backdrop-blur-xl">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#767683]">
+                  (Rs {pricePerPage} / Pg)
+                </p>
+                <p className="text-[32px] font-extrabold tracking-[-0.03em] text-[#000666]">
+                  $ {totalPrice}
+                </p>
+                <p className="mt-0.5 text-[11px] font-medium text-[#767683]">
+                  {selectedPagesCount} page{selectedPagesCount !== 1 ? "s" : ""}
+                </p>
+              </div>
+              <button
+                onClick={() =>
+                  navigate("/app/payment-preview", {
+                    state: {
+                      fileName,
+                      totalPages,
+                      selectedPagesCount,
+                      totalPrice,
+                      type,
+                      sides,
+                      pagesPerSheet,
+                    },
+                  })
+                }
+                className="ml-4 max-w-[200px] flex-1 rounded-full bg-[#1a237e] py-3.5 text-sm font-semibold text-white shadow-[0_16px_28px_rgba(26,35,126,0.22)] disabled:opacity-50"
+                disabled={rangeError !== null && pageMode === "custom"}
+              >
+                Continue
+              </button>
+            </div>
           </div>
-          <button
-            onClick={() =>
-              navigate("/app/payment-preview", {
-                state: {
-                  fileName,
-                  totalPages,
-                  selectedPagesCount,
-                  totalPrice,
-                  type,
-                  sides,
-                  pagesPerSheet,
-                },
-              })
-            }
-            className="ml-4 max-w-[200px] flex-1 rounded-full bg-gray-900 py-3.5 text-sm font-semibold text-white disabled:opacity-50"
-            disabled={rangeError !== null && pageMode === "custom"}
-          >
-            Continue
-          </button>
         </div>
       </section>
 
