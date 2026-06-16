@@ -444,14 +444,11 @@ export function Preview() {
           <div className="rounded-[28px] border border-white/30 bg-white/70 p-5 shadow-[0_8px_32px_rgba(26,35,126,0.05)] backdrop-blur-xl">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#767683]">
-                  (Rs {pricePerPage} / Pg)
+                <p className="mt-0.5 text-[11px] font-medium text-[#767683]">
+                  {selectedPagesCount} page{selectedPagesCount !== 1 ? "s" : ""}
                 </p>
                 <p className="text-[32px] font-extrabold tracking-[-0.03em] text-[#000666]">
                   $ {totalPrice}
-                </p>
-                <p className="mt-0.5 text-[11px] font-medium text-[#767683]">
-                  {selectedPagesCount} page{selectedPagesCount !== 1 ? "s" : ""}
                 </p>
               </div>
               <button
