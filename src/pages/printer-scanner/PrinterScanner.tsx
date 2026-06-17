@@ -7,6 +7,7 @@ import {
 } from "@zxing/library";
 import { ArrowLeft, Camera, CheckCircle2, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { useRecentFiles } from "../../widgets/app-layout/model/recentFilesContext";
 
@@ -88,6 +89,7 @@ async function getPreferredCamera() {
 }
 
 export function PrinterScanner() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { activeRecentFile } = useRecentFiles();
 
@@ -96,7 +98,7 @@ export function PrinterScanner() {
   const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
   const hasHandledResultRef = useRef(false);
 
-  const [statusText, setStatusText] = useState("Preparing camera");
+  const [statusText, setStatusText] = useState(t("scanner.preparingCamera"));
   const [scannerError, setScannerError] = useState<string | null>(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [scanResult, setScanResult] = useState<string | null>(null);
@@ -127,19 +129,19 @@ export function PrinterScanner() {
     setScannerError(null);
     setScanResult(null);
     setIsCameraReady(false);
-    setStatusText("Requesting camera access");
+    setStatusText(t("scanner.requestingAccess"));
     hasHandledResultRef.current = false;
 
     if (!activeRecentFile?.file) {
-      toast.error("No file selected yet. Please upload a document first.");
+      toast.error(t("scanner.noFileSelected"));
       navigate("/app");
       return;
     }
 
     if (!navigator.mediaDevices?.getUserMedia) {
-      const errorMessage = "Camera is not supported on this device.";
+      const errorMessage = t("scanner.cameraUnsupported");
       setScannerError(errorMessage);
-      setStatusText("Camera unavailable");
+      setStatusText(t("scanner.cameraUnavailable"));
       toast.error(errorMessage);
       return;
     }
@@ -169,7 +171,7 @@ export function PrinterScanner() {
       videoRef.current.srcObject = stream;
       await videoRef.current.play();
 
-      setStatusText("Point the camera at the printer QR code");
+      setStatusText(t("scanner.pointCamera"));
       setIsCameraReady(true);
 
       const hints = new Map();
@@ -189,27 +191,24 @@ export function PrinterScanner() {
 
             hasHandledResultRef.current = true;
             setScanResult(qrValue);
-            setStatusText("Printer found");
+            setStatusText(t("scanner.printerFound"));
             setScannerError(null);
-            toast.success("Printer QR scanned successfully.");
+            toast.success(t("scanner.scanSuccess"));
             stopScanner();
             window.setTimeout(() => goToPreview(qrValue), 500);
             return;
           }
 
           if (error && !(error instanceof NotFoundException)) {
-            setScannerError(
-              "Unable to recognize the QR code. Try moving the camera closer.",
-            );
-            setStatusText("Scanner is active");
+            setScannerError(t("scanner.recognizeError"));
+            setStatusText(t("scanner.scannerActive"));
           }
         },
       );
     } catch {
-      const errorMessage =
-        "Unable to open the camera. Check permissions and try again.";
+      const errorMessage = t("scanner.openCameraError");
       setScannerError(errorMessage);
-      setStatusText("Camera unavailable");
+      setStatusText(t("scanner.cameraUnavailable"));
       toast.error(errorMessage);
     }
   };
@@ -239,7 +238,7 @@ export function PrinterScanner() {
         <header className="flex h-16 shrink-0 items-center border-b border-white/10 bg-[#1a237e]/35 px-4 backdrop-blur-xl">
           <button
             type="button"
-            aria-label="Back"
+            aria-label={t("common.back")}
             onClick={() => {
               stopScanner();
               navigate("/app");
@@ -249,14 +248,14 @@ export function PrinterScanner() {
             <ArrowLeft size={20} />
           </button>
           <h1 className="flex-1 pr-10 text-center text-[20px] font-semibold">
-            Scanner
+            {t("scanner.title")}
           </h1>
         </header>
 
         <main className="relative flex flex-1 flex-col items-center justify-center px-4 pb-10 pt-6">
           <div className="absolute top-6 left-1/2 w-full max-w-[320px] -translate-x-1/2 px-4 text-center">
             <p className="inline-flex rounded-full border border-white/20 bg-[#1a237e]/75 px-4 py-2 text-sm leading-5 text-white shadow-lg backdrop-blur-md">
-              Point the camera at the printer QR code
+              {t("scanner.pointCamera")}
             </p>
           </div>
 
@@ -286,7 +285,7 @@ export function PrinterScanner() {
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#0e172f]/72 backdrop-blur-sm">
                   <CheckCircle2 size={38} className="text-[#58e6ff]" />
                   <p className="text-sm font-semibold text-white">
-                    QR code detected
+                    {t("scanner.qrDetected")}
                   </p>
                   <p className="max-w-[220px] break-all px-4 text-center text-xs text-white/70">
                     {scanResult}
@@ -309,7 +308,9 @@ export function PrinterScanner() {
                 size={18}
                 className={!scanResult ? "animate-spin" : undefined}
               />
-              {scanResult ? "Opening preview" : "Recognition in progress"}
+              {scanResult
+                ? t("scanner.openingPreview")
+                : t("scanner.recognitionInProgress")}
             </button>
 
             {/* <div className="rounded-2xl border border-white/12 bg-white/8 px-4 py-3 backdrop-blur-md"> */}

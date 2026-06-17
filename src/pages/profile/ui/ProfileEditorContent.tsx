@@ -18,6 +18,7 @@ import type {
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../app/store/store";
 import { RotateCcw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type ProfileEditorContentProps = {
   activeItem: (SettingsItem & { value?: string }) | null;
@@ -54,6 +55,7 @@ export function ProfileEditorContent({
   onDraftValueChange,
   handleResetCustomDailyGoal,
 }: ProfileEditorContentProps) {
+  const { t } = useTranslation();
   const { profile } = useSelector((state: RootState) => state.waterProfile);
 
   const isCustom = !!profile?.daily_goal_is_custom;
@@ -67,7 +69,7 @@ export function ProfileEditorContent({
       <div className="rounded-3xl bg-[#F6FBFF] p-4">
         <div className="flex items-center justify-between gap-3">
           <span className="text-base font-semibold text-[#20415F]">
-            Notification sound
+            {t("profile.notificationSound")}
           </span>
           <button
             type="button"
@@ -86,7 +88,9 @@ export function ProfileEditorContent({
           </button>
         </div>
         <p className="mt-3 text-sm text-[#6E8AA4]">
-          Current state: {draftValue || "Off"}
+          {t("profile.currentState", {
+            value: draftValue === "On" ? t("common.on") : t("common.off"),
+          })}
         </p>
       </div>
     );
@@ -109,7 +113,7 @@ export function ProfileEditorContent({
               }`}
               onClick={() => onGenderChange(option)}
             >
-              {option}
+              {t(`profile.options.gender.${option}`)}
             </button>
           );
         })}
@@ -134,7 +138,7 @@ export function ProfileEditorContent({
               }`}
               onClick={() => onActivityLevelChange(option)}
             >
-              {option}
+              {t(`profile.options.activityLevel.${option}`)}
             </button>
           );
         })}
@@ -182,7 +186,7 @@ export function ProfileEditorContent({
                         : "font-medium text-[#8AA3B8]"
                     }`}
                   >
-                    {month}
+                    {t(`profile.months.${month}`)}
                   </div>
                 )}
               </Picker.Item>
@@ -322,7 +326,7 @@ export function ProfileEditorContent({
               onDraftValueChange(event.target.value.replace(/\D/g, ""))
             }
             inputMode="numeric"
-            placeholder="Enter ml amount"
+            placeholder={t("profile.targetPlaceholder")}
             className="w-full rounded-2xl border border-[#D8E5EF] bg-[#F9FCFF] px-4 py-3 pr-14 text-[#20415F] outline-none transition focus:border-[#61C3FF] focus:bg-white"
           />
           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-[#6E8AA4]">
@@ -346,12 +350,12 @@ export function ProfileEditorContent({
   return (
     <label className="block">
       <span className="mb-2 block text-sm font-semibold text-[#35607F]">
-        Value
+        {t("common.value")}
       </span>
       <input
         value={draftValue}
         onChange={(event) => onDraftValueChange(event.target.value)}
-        placeholder="Enter a new value"
+        placeholder={t("profile.newValuePlaceholder")}
         className="w-full rounded-2xl border border-[#D8E5EF] bg-[#F9FCFF] px-4 py-3 text-[#20415F] outline-none transition focus:border-[#61C3FF] focus:bg-white"
       />
     </label>

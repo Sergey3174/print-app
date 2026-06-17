@@ -1,4 +1,5 @@
 import type { SocialProvider } from "../../features/auth/model/socialProviders";
+import { useTranslation } from "react-i18next";
 
 type SocialButtonProps = {
   provider: SocialProvider;
@@ -6,6 +7,8 @@ type SocialButtonProps = {
 };
 
 export function SocialButton({ provider, onClick }: SocialButtonProps) {
+  const { t } = useTranslation();
+
   return (
     <button
       className="grid grid-cols-[1fr_2fr] w-full items-center  gap-3 rounded-full border-0 bg-[#00abe8] px-4 py-2.5 text-left text-[#eef6ff]  transition-transform duration-200 hover:-translate-y-0.5"
@@ -19,7 +22,7 @@ export function SocialButton({ provider, onClick }: SocialButtonProps) {
         <img className="h-8 w-8" src={provider.icon} />
       </span>
       <span className="text-sm font-semibold sm:text-base">
-        Continue with {provider.label}
+        {t("auth.continueWith", { provider: provider.label })}
       </span>
     </button>
   );

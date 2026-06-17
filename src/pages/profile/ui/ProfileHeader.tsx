@@ -1,5 +1,6 @@
 import { ChevronLeft, User } from "lucide-react";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import type { RootState } from "../../../app/store/store";
 
 type ProfileHeaderProps = {
@@ -7,6 +8,7 @@ type ProfileHeaderProps = {
 };
 
 export function ProfileHeader({ onBack }: ProfileHeaderProps) {
+  const { t } = useTranslation();
   const user = useSelector((state: RootState) => state.user.user);
   const photo = user?.photo ?? null;
 
@@ -18,10 +20,10 @@ export function ProfileHeader({ onBack }: ProfileHeaderProps) {
         </button>
         <div className="">
           <h2 className="font-bold text-3xl text-cyan-900 leading-none">
-            Stay hydrated
+            {t("profile.headerTitle")}
           </h2>
           <p className="font-bold text-xl text-cyan-900 leading-6">
-            Track your water intake
+            {t("profile.headerSubtitle")}
           </p>
         </div>
       </div>

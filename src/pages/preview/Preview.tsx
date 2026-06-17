@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, Scan, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
 import { SettingsEditorSheet } from "../../pages/profile/ui/SettingsEditorSheet";
 import { getFileBaseName } from "../../shared/lib/file/getFileBaseName";
@@ -21,7 +22,7 @@ function ToggleOption({
   active,
   onChange,
 }: {
-  options: string[];
+  options: Array<{ value: string; label: string }>;
   active: string;
   onChange: (val: string) => void;
 }) {
@@ -29,15 +30,15 @@ function ToggleOption({
     <div className="flex w-full gap-1 rounded-2xl bg-white/35 p-1 backdrop-blur-sm">
       {options.map((opt) => (
         <button
-          key={opt}
-          onClick={() => onChange(opt)}
+          key={opt.value}
+          onClick={() => onChange(opt.value)}
           className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
-            active === opt
-              ? "bg-white text-[#000666] shadow-[0_8px_20px_rgba(26,35,126,0.08)]"
+            active === opt.value
+              ? "bg-white text-[#000666] border border-[#000666]/20 shadow-[0_8px_20px_rgba(26,35,126,0.08)]"
               : "text-[#767683]"
           }`}
         >
-          {opt}
+          {opt.label}
         </button>
       ))}
     </div>
@@ -110,6 +111,7 @@ function Placeholder() {
 }
 
 export function Preview() {
+  const { t } = useTranslation();
   const { activeRecentFile } = useRecentFiles();
   const [pagesPerSheet, setPagesPerSheet] = useState(1);
   const [pageMode, setPageMode] = useState<"all" | "custom">("all");
@@ -162,35 +164,35 @@ export function Preview() {
     if (pageRangeInput.trim()) {
       const parsed = parsePages(pageRangeInput, totalPages);
       if (parsed === null) {
-        return "Invalid format. Use: 1-5, 1-5,8, or 1-5,8,10-12";
+        return t("preview.invalidFormat");
       }
       if (parsed.length === 0) {
-        return "No valid pages in range";
+        return t("preview.noValidPages");
       }
     } else {
       if (!rangeStart && !rangeEnd) {
-        return "Please enter a page range";
+        return t("preview.enterPageRange");
       }
       if (!rangeStart || !rangeEnd) {
-        return "Please fill both From and To fields";
+        return t("preview.fillBothFields");
       }
 
       const start = parseInt(rangeStart);
       const end = parseInt(rangeEnd);
 
       if (start < 1 || start > totalPages) {
-        return `Start page must be between 1 and ${totalPages}`;
+        return t("preview.startBetween", { totalPages });
       }
       if (end < 1 || end > totalPages) {
-        return `End page must be between 1 and ${totalPages}`;
+        return t("preview.endBetween", { totalPages });
       }
       if (start > end) {
-        return "Start page must be less than or equal to end page";
+        return t("preview.startLessOrEqual");
       }
     }
 
     return null;
-  }, [pageMode, pageRangeInput, rangeStart, rangeEnd, totalPages]);
+  }, [pageMode, pageRangeInput, rangeStart, rangeEnd, t, totalPages]);
 
   const handleScroll = () => {
     const el = scrollRef.current;
@@ -205,7 +207,7 @@ export function Preview() {
 
     async function loadPreviewFromContext() {
       if (!activeRecentFile) {
-        setFileName("No file selected");
+        setFileName(t("preview.noFileSelected"));
         setPreviews(null);
         setPreviewSession(null);
         return;
@@ -263,7 +265,7 @@ export function Preview() {
     return () => {
       isCancelled = true;
     };
-  }, [activeRecentFile]);
+  }, [activeRecentFile, t]);
 
   return (
     <MobileShell>
@@ -276,7 +278,7 @@ export function Preview() {
             <ChevronLeft size={18} />
           </button>
           <h1 className="text-[20px] font-semibold tracking-[-0.01em] text-[#1b1c1c]">
-            Preview
+            {t("preview.title")}
           </h1>
         </div>
 
@@ -286,7 +288,7 @@ export function Preview() {
               {fileName}
             </span>
             <span className="shrink-0 rounded-full bg-[#e0e0ff]/70 px-3 py-1 text-xs font-bold uppercase tracking-[0.08em] text-[#1a237e]">
-              {totalPages} Pages
+              {t("common.pages", { count: totalPages })}
             </span>
           </div>
 
@@ -299,7 +301,7 @@ export function Preview() {
             {loading ? (
               <div className="flex h-48 w-36 shrink-0 items-center justify-center rounded-[22px] border border-white/50 bg-white/75">
                 <span className="text-xs font-medium text-[#767683]">
-                  Loading...
+                  {t("common.loading")}
                 </span>
               </div>
             ) : previews ? (
@@ -347,8 +349,8 @@ export function Preview() {
         <div className="mx-4 mb-4 rounded-[28px] border border-white/30 bg-white/70 p-5 shadow-[0_8px_32px_rgba(26,35,126,0.05)] backdrop-blur-xl">
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-4">
-              <span className="w-10 shrink-0 text-sm font-semibold text-[#454652]">
-                Copy
+              <span className="w-12 shrink-0 text-sm font-semibold text-[#454652]">
+                {t("preview.copy")}
               </span>
               <div className="flex h-[46px] w-full items-center justify-between gap-1 rounded-2xl bg-white/35 px-6 py-1.5 backdrop-blur-sm">
                 <button
@@ -372,8 +374,8 @@ export function Preview() {
             <div className="h-px bg-[#c6c5d4]/50" />
 
             <div className="flex items-center justify-between gap-4">
-              <span className="w-10 shrink-0 text-sm font-semibold text-[#454652]">
-                Pages
+              <span className="w-12 shrink-0 text-sm font-semibold text-[#454652]">
+                {t("preview.pages")}
               </span>
               <div className="flex w-full gap-1 rounded-2xl bg-white/35 p-1 backdrop-blur-sm">
                 <button
@@ -383,11 +385,11 @@ export function Preview() {
                   }}
                   className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
                     pageMode === "custom"
-                      ? "bg-white text-[#000666] shadow-[0_8px_20px_rgba(26,35,126,0.08)]"
+                      ? "bg-white text-[#000666] border border-[#000666]/20  shadow-[0_8px_20px_rgba(26,35,126,0.08)]"
                       : "text-[#767683]"
                   }`}
                 >
-                  Custom
+                  {t("preview.custom")}
                 </button>
                 <button
                   onClick={() => {
@@ -396,18 +398,20 @@ export function Preview() {
                   }}
                   className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
                     pageMode === "all"
-                      ? "bg-white text-[#000666] shadow-[0_8px_20px_rgba(26,35,126,0.08)]"
+                      ? "bg-white text-[#000666] border border-[#000666]/20  shadow-[0_8px_20px_rgba(26,35,126,0.08)]"
                       : "text-[#767683]"
                   }`}
                 >
-                  All Pages
+                  {t("preview.allPages")}
                 </button>
               </div>
             </div>
 
             {pageMode === "custom" && selectedPages.length > 0 && (
               <div className="flex items-center gap-2 rounded-2xl bg-[#e0e0ff]/45 px-4 py-3.5 text-sm text-[#454652]">
-                <span className="font-semibold text-[#1a237e]">Selected:</span>
+                <span className="font-semibold text-[#1a237e]">
+                  {t("preview.selected")}
+                </span>
                 <span className="font-semibold text-[#000666]">
                   {selectedPages.slice(0, 5).join(", ")}
                   {selectedPages.length > 5 ? "..." : ""}
@@ -418,11 +422,14 @@ export function Preview() {
             <div className="h-px bg-[#c6c5d4]/50" />
 
             <div className="flex items-center justify-between gap-4">
-              <span className="w-10 shrink-0 text-sm font-semibold text-[#454652]">
-                Type
+              <span className="w-12 shrink-0 text-sm font-semibold text-[#454652]">
+                {t("preview.type")}
               </span>
               <ToggleOption
-                options={["Color", "B&W"]}
+                options={[
+                  { value: "Color", label: t("preview.color") },
+                  { value: "B&W", label: t("preview.bw") },
+                ]}
                 active={type}
                 onChange={setType}
               />
@@ -431,11 +438,14 @@ export function Preview() {
             <div className="h-px bg-[#c6c5d4]/50" />
 
             <div className="flex items-center justify-between gap-4">
-              <span className="w-10 shrink-0 text-sm font-semibold text-[#454652]">
-                Sides
+              <span className="w-12 shrink-0 text-sm font-semibold text-[#454652]">
+                {t("preview.sides")}
               </span>
               <ToggleOption
-                options={["Both Sides", "One Side"]}
+                options={[
+                  { value: "Both Sides", label: t("preview.bothSides") },
+                  { value: "One Side", label: t("preview.oneSide") },
+                ]}
                 active={sides}
                 onChange={setSides}
               />
@@ -448,7 +458,7 @@ export function Preview() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="mt-0.5 text-[11px] font-medium text-[#767683]">
-                  {selectedPagesCount} page{selectedPagesCount !== 1 ? "s" : ""}
+                  {t("common.pages", { count: selectedPagesCount })}
                 </p>
                 <p className="text-[32px] font-extrabold tracking-[-0.03em] text-[#000666]">
                   {formatCurrency(totalPrice)}
@@ -471,7 +481,7 @@ export function Preview() {
                 className="ml-4 max-w-[200px] flex-1 rounded-full bg-[#1a237e] py-3.5 text-sm font-semibold text-white shadow-[0_16px_28px_rgba(26,35,126,0.22)] disabled:opacity-50"
                 disabled={rangeError !== null && pageMode === "custom"}
               >
-                Continue
+                {t("preview.continue")}
               </button>
             </div>
           </div>
@@ -480,8 +490,8 @@ export function Preview() {
 
       <SettingsEditorSheet
         isOpen={isPageSheetOpen}
-        title="Select Pages"
-        description={`Total pages: ${totalPages}`}
+        title={t("preview.selectPages")}
+        description={t("preview.totalPages", { count: totalPages })}
         onClose={() => setIsPageSheetOpen(false)}
         onSave={() => setIsPageSheetOpen(false)}
         disabled={rangeError !== null && pageMode === "custom"}
@@ -489,12 +499,12 @@ export function Preview() {
         <div className="flex flex-col gap-3">
           <div className="rounded-[22px] border border-white/40 bg-white/65 p-3.5 shadow-[0_8px_28px_rgba(26,35,126,0.05)] backdrop-blur-sm">
             <label className="mb-3 block text-[11px] font-bold uppercase tracking-[0.12em] text-[#767683]">
-              Method 1: Range
+              {t("preview.methodRange")}
             </label>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#454652]">
-                  From
+                  {t("preview.from")}
                 </label>
                 <input
                   type="text"
@@ -513,7 +523,7 @@ export function Preview() {
               </div>
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#454652]">
-                  To
+                  {t("preview.to")}
                 </label>
                 <input
                   type="text"
@@ -535,11 +545,11 @@ export function Preview() {
 
           <div className="rounded-[22px] border border-white/40 bg-white/65 p-3.5 shadow-[0_8px_28px_rgba(26,35,126,0.05)] backdrop-blur-sm">
             <label className="mb-2.5 block text-[11px] font-bold uppercase tracking-[0.12em] text-[#767683]">
-              Method 2: Custom Format
+              {t("preview.methodCustom")}
             </label>
             <input
               type="text"
-              placeholder="e.g., 1-5, 1-5,8, 1-5,8,10-12"
+              placeholder={t("preview.customPlaceholder")}
               value={pageRangeInput}
               onChange={(e) => setPageRangeInput(e.target.value)}
               className={`w-full rounded-2xl border px-4 py-2.5 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_8px_20px_rgba(26,35,126,0.04)] outline-none transition placeholder:text-[#9b9baa] ${
@@ -549,7 +559,7 @@ export function Preview() {
               }`}
             />
             <p className="mt-1.5 text-[11px] leading-4.5 text-[#767683]">
-              Separated by commas. Use hyphens for ranges (e.g., 1-3).
+              {t("preview.customHelper")}
             </p>
           </div>
 
@@ -567,9 +577,10 @@ export function Preview() {
           {!rangeError && selectedPages.length > 0 && (
             <div className="rounded-[20px] border border-[#c7e8d6] bg-[linear-gradient(180deg,rgba(244,255,249,0.96),rgba(233,250,240,0.94))] p-3.5 shadow-[0_8px_24px_rgba(0,104,118,0.08)]">
               <p className="text-sm font-semibold text-[#006876]">
-                Selected:{" "}
-                <span className="font-bold">{selectedPagesCount}</span> page
-                {selectedPagesCount !== 1 ? "s" : ""}
+                {t("preview.selected")}{" "}
+                <span className="font-bold">
+                  {t("common.pages", { count: selectedPagesCount })}
+                </span>
               </p>
               <p className="mt-1 text-[11px] leading-4.5 text-[#2d5f57]">
                 {selectedPages.slice(0, 10).join(", ")}

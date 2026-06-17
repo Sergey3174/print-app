@@ -3,7 +3,7 @@ import BG_HEADER from "../../../assets/bg-header1.png";
 import {
   activityLevelOptions,
   genderOptions,
-  settingsSections,
+  getSettingsSections,
 } from "../model/settingsData";
 import {
   buildSectionsWithValues,
@@ -38,6 +38,7 @@ import {
 } from "../../../entities/waterProfile/api/waterProfileApi";
 import { clearUser } from "../../../entities/user/slice/userSlice";
 import { useResolvedCity } from "../../../shared/lib/useResolvedCity";
+import { useTranslation } from "react-i18next";
 const NOTIFICATIONS_ENABLED_KEY = "notifications-enabled";
 
 const activityLevelToApiValue: Record<
@@ -69,22 +70,25 @@ function getNotificationsEnabledState() {
   );
 }
 
-async function showTestNotification() {
+async function showTestNotification(
+  title: string,
+  body: string,
+) {
   if (!("Notification" in window) || Notification.permission !== "granted") {
     return;
   }
 
   if ("serviceWorker" in navigator) {
     const registration = await navigator.serviceWorker.ready;
-    await registration.showNotification("Notifications enabled", {
-      body: "You will now receive water reminders.",
+    await registration.showNotification(title, {
+      body,
       icon: "/android-chrome-192x192.png",
     });
     return;
   }
 
-  new Notification("Notifications enabled", {
-    body: "You will now receive water reminders.",
+  new Notification(title, {
+    body,
   });
 }
 
@@ -132,6 +136,7 @@ function buildSettingsValuesFromProfile(
 }
 
 export function ProfilePage() {
+  const { t } = useTranslation();
   const [settingsValues, setSettingsValues] = useState<SettingsValue[]>([]);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [draftValue, setDraftValue] = useState("");
@@ -173,8 +178,8 @@ export function ProfilePage() {
   const navigate = useNavigate();
 
   const sections = useMemo(
-    () => buildSectionsWithValues(settingsSections, settingsValues),
-    [settingsValues],
+    () => buildSectionsWithValues(getSettingsSections(t), settingsValues),
+    [settingsValues, t],
   );
 
   const activeItem = useMemo(
@@ -330,7 +335,10 @@ export function ProfilePage() {
 
     setNotificationsEnabled(true);
     localStorage.setItem(NOTIFICATIONS_ENABLED_KEY, "true");
-    await showTestNotification();
+    await showTestNotification(
+      t("profile.testNotificationTitle"),
+      t("profile.testNotificationBody"),
+    );
   };
 
   const handleResetCustomDailyGoal = async () => {

@@ -3,6 +3,7 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { MapPin, MousePointer2 } from "lucide-react";
 import { getDistance } from "../../shared/lib/getDisatnce";
+import { useTranslation } from "react-i18next";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
@@ -48,6 +49,7 @@ export function Map({
   onNearestPointChange,
   onSelectPoint,
 }: MapProps) {
+  const { t } = useTranslation();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const userMarker = useRef<mapboxgl.Marker | null>(null);
@@ -89,7 +91,7 @@ export function Map({
     });
 
     const defaultPopup = new mapboxgl.Popup(popupOptions).setText(
-      "Jakarta (default location)",
+      t("map.defaultLocation"),
     );
     defaultMarker.current = new mapboxgl.Marker({ color: "#6b7280" })
       .setLngLat(jakarta)
@@ -101,7 +103,7 @@ export function Map({
       map.current?.remove();
       map.current = null;
     };
-  }, [onSelectPoint]);
+  }, [onSelectPoint, t]);
 
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -128,12 +130,12 @@ export function Map({
       return;
     }
 
-    const popup = new mapboxgl.Popup({ offset: 25 }).setText("You are here");
+    const popup = new mapboxgl.Popup({ offset: 25 }).setText(t("map.youAreHere"));
     userMarker.current = new mapboxgl.Marker({ color: "#2563eb" })
       .setLngLat(userPosition)
       .setPopup(popup)
       .addTo(map.current);
-  }, [userPosition]);
+  }, [t, userPosition]);
 
   const currentPosition = userPosition ?? defaultCurrentPosition;
 
@@ -220,7 +222,7 @@ export function Map({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1 overflow-hidden font-bold text-gray-700">
             <div className="flex shrink-0 items-center gap-1">
-              <span className="font-normal">Printer at</span>
+              <span className="font-normal">{t("map.printerAt")}</span>
             </div>
             <div className="flex min-w-0 items-center gap-1 overflow-hidden">
               <div className="flex shrink-0 items-center gap-1">

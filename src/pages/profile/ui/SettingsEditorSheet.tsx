@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 
 const SHEET_ANIMATION_MS = 300;
 
@@ -20,7 +21,7 @@ type SettingsEditorSheetProps = {
 
 export function SettingsEditorSheet({
   isOpen,
-  title = "Edit setting",
+  title,
   description,
   children,
   onClose,
@@ -28,11 +29,15 @@ export function SettingsEditorSheet({
   disabled = false,
   showActionButtons = true,
   showCloseButton = false,
-  saveLabel = "Save",
-  cancelLabel = "Cancel",
+  saveLabel,
+  cancelLabel,
 }: SettingsEditorSheetProps) {
+  const { t } = useTranslation();
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [isVisible, setIsVisible] = useState(false);
+  const resolvedTitle = title ?? t("settingsSheet.editSetting");
+  const resolvedSaveLabel = saveLabel ?? t("common.save");
+  const resolvedCancelLabel = cancelLabel ?? t("common.cancel");
 
   useEffect(() => {
     if (isOpen) {
@@ -115,7 +120,7 @@ export function SettingsEditorSheet({
 
         <div className="mb-5 flex items-start justify-between gap-4 border-b border-[#f0eded] pb-4">
           <div>
-            <h3 className="text-xl font-bold text-[#1a237e]">{title}</h3>
+            <h3 className="text-xl font-bold text-[#1a237e]">{resolvedTitle}</h3>
             {description && (
               <p className="mt-1 text-sm text-[#454652]">{description}</p>
             )}
@@ -126,7 +131,7 @@ export function SettingsEditorSheet({
               type="button"
               className="rounded-full p-2 text-[#4c56af] transition hover:bg-[#e0e0ff]/60"
               onClick={onClose}
-              aria-label="Close sheet"
+              aria-label={t("settingsSheet.close")}
             >
               <X size={20} />
             </button>
@@ -142,7 +147,7 @@ export function SettingsEditorSheet({
               className="flex-1 rounded-2xl border border-[#bdc2ff] bg-white px-4 py-3 font-semibold text-[#4c56af] transition hover:bg-[#f7f7ff] disabled:opacity-50"
               onClick={onClose}
             >
-              {cancelLabel}
+              {resolvedCancelLabel}
             </button>
             <button
               type="button"
@@ -150,7 +155,7 @@ export function SettingsEditorSheet({
               onClick={onSave}
               disabled={disabled}
             >
-              {saveLabel}
+              {resolvedSaveLabel}
             </button>
           </div>
         ) : null}

@@ -1,0 +1,203 @@
+{
+  "common": {
+    "back": "Kembali",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "loading": "Memuat...",
+    "on": "Aktif",
+    "off": "Nonaktif",
+    "notSet": "Belum diatur",
+    "value": "Nilai",
+    "chooseFile": "Pilih file",
+    "openingFile": "Membuka file...",
+    "uploadDocument": "Unggah dokumen",
+    "uploadDocuments": "Unggah dokumen",
+    "uploadFile": "Unggah file",
+    "language": {
+      "english": "Inggris",
+      "indonesian": "Indonesia"
+    },
+    "pages_one": "{{count}} halaman",
+    "pages_other": "{{count}} halaman"
+  },
+  "auth": {
+    "loginTitle": "Tubuhmu butuh air!",
+    "loginSubtitle": "Pantau asupan airmu setiap hari hanya dengan beberapa ketukan!",
+    "continueWith": "Lanjut dengan {{provider}}"
+  },
+  "app": {
+    "changeLanguage": "Ubah bahasa",
+    "uploadDescription": "Pilih dokumen atau gambar dan kami akan langsung membukanya di pratinjau.",
+    "uploadFormats": "PDF, DOCX, JPG atau PNG hingga 50 MB",
+    "uploadHint": "Pratinjau terbuka otomatis setelah file dipilih, tanpa langkah simpan tambahan."
+  },
+  "home": {
+    "nearbyPrintPoints": "Titik Print Terdekat",
+    "viewMap": "Lihat Peta",
+    "collapseMap": "Tutup Peta",
+    "nearestPrinter": "Printer swalayan terdekat",
+    "printerPoint": "Titik printer swalayan",
+    "online": "Online",
+    "offline": "Offline",
+    "printHistory": "Riwayat Cetak",
+    "noPrintHistory": "Belum ada riwayat cetak.",
+    "today": "Hari ini",
+    "yesterday": "Kemarin",
+    "color": "Warna",
+    "bw": "Hitam Putih"
+  },
+  "map": {
+    "defaultLocation": "Jakarta (lokasi default)",
+    "youAreHere": "Anda di sini",
+    "printerAt": "Printer di"
+  },
+  "preview": {
+    "title": "Pratinjau",
+    "copy": "Salinan",
+    "pages": "Halaman",
+    "custom": "Kustom",
+    "allPages": "Semua Halaman",
+    "selected": "Dipilih:",
+    "type": "Tipe",
+    "sides": "Sisi",
+    "color": "Warna",
+    "bw": "Hitam Putih",
+    "bothSides": "Dua Sisi",
+    "oneSide": "Satu Sisi",
+    "continue": "Lanjut",
+    "selectPages": "Pilih Halaman",
+    "totalPages": "Total halaman: {{count}}",
+    "methodRange": "Metode 1: Rentang",
+    "methodCustom": "Metode 2: Format Kustom",
+    "from": "Dari",
+    "to": "Sampai",
+    "customPlaceholder": "mis., 1-5, 1-5,8, 1-5,8,10-12",
+    "customHelper": "Pisahkan dengan koma. Gunakan tanda hubung untuk rentang (mis., 1-3).",
+    "invalidFormat": "Format tidak valid. Gunakan: 1-5, 1-5,8, atau 1-5,8,10-12",
+    "noValidPages": "Tidak ada halaman valid dalam rentang",
+    "enterPageRange": "Masukkan rentang halaman",
+    "fillBothFields": "Isi kolom Dari dan Sampai",
+    "startBetween": "Halaman awal harus antara 1 dan {{totalPages}}",
+    "endBetween": "Halaman akhir harus antara 1 dan {{totalPages}}",
+    "startLessOrEqual": "Halaman awal harus kurang dari atau sama dengan halaman akhir",
+    "noFileSelected": "Belum ada file dipilih",
+    "fullPreviewCta": "Lihat Opsi Cetak",
+    "noPreviewData": "Belum ada data pratinjau. Buka dokumen di Pratinjau Cetak terlebih dahulu."
+  },
+  "payment": {
+    "title": "Detail Pembayaran",
+    "emptyState": "Belum ada data pembayaran. Buka Pratinjau Cetak terlebih dahulu.",
+    "printerPayment": "Pembayaran printer",
+    "chooseMethod": "Lanjutkan dengan metode pembayaran yang nyaman",
+    "total": "Total",
+    "printing": "Dicetak",
+    "type": "Tipe",
+    "sides": "Sisi",
+    "totalAmount": "Total Pembayaran",
+    "bankCard": "Kartu Bank",
+    "qris": "Qris",
+    "waiting": "Menunggu pembayaran...",
+    "qrAlt": "QR pembayaran",
+    "scanQr": "Pindai QR ini dengan aplikasi bank Anda."
+  },
+  "printSuccess": {
+    "defaultDocument": "Dokumen Anda",
+    "done": "Selesai",
+    "queued": "Dalam antrean",
+    "paid": "Dibayar",
+    "printed": "Dicetak",
+    "complete": "Lengkap",
+    "pagesReady": "Halaman siap",
+    "printerFound": "Printer ditemukan",
+    "reserved": "Dipesan",
+    "status": "Status",
+    "delivered": "Terkirim",
+    "finished": "Selesai",
+    "ready": "Siap",
+    "uploaded": "Diunggah",
+    "starting": "Memulai",
+    "success": "Berhasil",
+    "printingStarted": "Proses cetak dimulai",
+    "readyMessage": "{{fileName}} sudah siap. Anda bisa mengambilnya dari printer sekarang.",
+    "processingMessage": "{{fileName}} telah dikirim ke printer. Harap tunggu sampai pekerjaan selesai.",
+    "summary": "Ringkasan cetak",
+    "backHome": "Kembali ke Beranda"
+  },
+  "scanner": {
+    "preparingCamera": "Menyiapkan kamera",
+    "requestingAccess": "Meminta akses kamera",
+    "noFileSelected": "Belum ada file dipilih. Silakan unggah dokumen terlebih dahulu.",
+    "cameraUnsupported": "Kamera tidak didukung di perangkat ini.",
+    "cameraUnavailable": "Kamera tidak tersedia",
+    "pointCamera": "Arahkan kamera ke QR printer",
+    "printerFound": "Printer ditemukan",
+    "scanSuccess": "QR printer berhasil dipindai.",
+    "recognizeError": "QR code tidak dapat dikenali. Coba dekatkan kamera.",
+    "scannerActive": "Pemindai aktif",
+    "openCameraError": "Tidak dapat membuka kamera. Periksa izin lalu coba lagi.",
+    "title": "Pemindai",
+    "qrDetected": "QR code terdeteksi",
+    "openingPreview": "Membuka pratinjau",
+    "recognitionInProgress": "Pengenalan sedang berlangsung"
+  },
+  "profile": {
+    "headerTitle": "Tetap terhidrasi",
+    "headerSubtitle": "Pantau asupan airmu",
+    "sectionProfile": "Pengaturan Profil",
+    "sectionGeneral": "Pengaturan Umum",
+    "gender": "Jenis Kelamin",
+    "birthDate": "Tanggal Lahir",
+    "weight": "Berat",
+    "height": "Tinggi",
+    "sound": "Suara",
+    "activityLevel": "Tingkat Aktivitas",
+    "target": "Target Konsumsi",
+    "city": "Kota",
+    "logout": "Keluar",
+    "notificationSound": "Suara notifikasi",
+    "currentState": "Status saat ini: {{value}}",
+    "targetPlaceholder": "Masukkan jumlah ml",
+    "newValuePlaceholder": "Masukkan nilai baru",
+    "testNotificationTitle": "Notifikasi diaktifkan",
+    "testNotificationBody": "Anda sekarang akan menerima pengingat minum air.",
+    "toggleSound": "Ubah suara",
+    "months": {
+      "January": "Januari",
+      "February": "Februari",
+      "March": "Maret",
+      "April": "April",
+      "May": "Mei",
+      "June": "Juni",
+      "July": "Juli",
+      "August": "Agustus",
+      "September": "September",
+      "October": "Oktober",
+      "November": "November",
+      "December": "Desember"
+    },
+    "options": {
+      "gender": {
+        "female": "Perempuan",
+        "male": "Laki-laki"
+      },
+      "activityLevel": {
+        "Low": "Rendah",
+        "Medium": "Sedang",
+        "High": "Tinggi"
+      }
+    }
+  },
+  "settingsSheet": {
+    "editSetting": "Ubah pengaturan",
+    "close": "Tutup panel"
+  },
+  "stats": {
+    "overview": "Ringkasan hidrasi",
+    "title": "Statistik",
+    "badge": "STATISTIK",
+    "inProgress": "Sedang dikembangkan"
+  },
+  "validation": {
+    "unsupportedFormat": "Format tidak didukung. Silakan pilih PDF, DOCX, JPG, JPEG, atau PNG."
+  }
+}

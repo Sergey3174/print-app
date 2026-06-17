@@ -2,8 +2,11 @@ import { socialProviders } from "../../../features/auth/model/socialProviders";
 import { SocialButton } from "../../../shared/ui/SocialButton";
 import { MobileShell } from "../../../widgets/mobile-shell/ui/MobileShell";
 import BG_LOGIN from "../../../assets/login.png";
+import { useTranslation } from "react-i18next";
 
 export function LoginPage() {
+  const { t } = useTranslation();
+
   return (
     <MobileShell>
       <section className="flex flex-col px-4  flex-1 overflow-auto  gap-5 bg-white">
@@ -13,10 +16,10 @@ export function LoginPage() {
             <div className="absolute  left-1/2 opacity-20 -translate-x-1/2 top-1/2 rounded-4xl rotate-55 -translate-y-1/2 bg-[#00abe8] w-1/2 aspect-square"></div>
           </div>
           <h1 className="m-0 text-[1.8rem] leading-none font-extrabold md:text-[2.1rem] text-[#00abe8]">
-            Your body needs water!
+            {t("auth.loginTitle")}
           </h1>
           <p className="mt-2 text-lg text-gray-500 max-w-60 mx-auto leading-6 ">
-            Track yor daily water intake with just a few taps!
+            {t("auth.loginSubtitle")}
           </p>
         </div>
 

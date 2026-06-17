@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { Clock3, FileText, MapPin, Printer } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   Map,
   printerPoints,
@@ -13,19 +14,24 @@ export type WaterAmount = number;
 
 const PRINT_PRICE_PER_PAGE = 2000;
 
-function formatHistoryDate(timestamp: number) {
+function formatHistoryDate(
+  timestamp: number,
+  locale: string,
+  todayLabel: string,
+  yesterdayLabel: string,
+) {
   const diffMs = Date.now() - timestamp;
   const oneDay = 24 * 60 * 60 * 1000;
 
   if (diffMs < oneDay) {
-    return "Today";
+    return todayLabel;
   }
 
   if (diffMs < oneDay * 2) {
-    return "Yesterday";
+    return yesterdayLabel;
   }
 
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "short",
   }).format(timestamp);
@@ -47,15 +53,16 @@ function getHistoryBadge(type: string) {
   };
 }
 
-function getPrintMode(type: string) {
+function getPrintMode(type: string, colorLabel: string, bwLabel: string) {
   if (["JPG", "JPEG", "PNG", "WEBP"].includes(type)) {
-    return "Color";
+    return colorLabel;
   }
 
-  return "B&W";
+  return bwLabel;
 }
 
 export function HomePage() {
+  const { t, i18n } = useTranslation();
   const { recentFiles } = useRecentFiles();
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<PrinterPoint | null>(null);
@@ -64,6 +71,8 @@ export function HomePage() {
   const [currentPosition, setCurrentPosition] = useState<
     [number, number] | null
   >(null);
+
+  const dateLocale = i18n.resolvedLanguage === "id_ID" ? "id-ID" : "en-US";
 
   const printerCards = useMemo(() => {
     if (!nearestPoint) return [];
@@ -126,7 +135,7 @@ export function HomePage() {
           <section className="space-y-3">
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-[22px] font-bold leading-none tracking-[-0.02em] text-[#101828]">
-                Nearby Print Points
+                {t("home.nearbyPrintPoints")}
               </h2>
 
               <button
@@ -134,7 +143,7 @@ export function HomePage() {
                 onClick={() => setIsMapExpanded((prev) => !prev)}
                 className="shrink-0 text-xs font-semibold uppercase leading-none tracking-[0.14em] text-[#1d4ed8]"
               >
-                {isMapExpanded ? "Collapse Map" : "View Map"}
+                {isMapExpanded ? t("home.collapseMap") : t("home.viewMap")}
               </button>
             </div>
 
@@ -179,8 +188,8 @@ export function HomePage() {
                       <p className="mt-1 flex items-center gap-1.5 text-xs text-[#454652]">
                         <MapPin size={12} />
                         {isNearest
-                          ? "Nearest self-service printer"
-                          : "Self-service printer point"}
+                          ? t("home.nearestPrinter")
+                          : t("home.printerPoint")}
                       </p>
                     </div>
 
@@ -197,7 +206,7 @@ export function HomePage() {
                           isNearest ? "text-[#006876]" : "text-[#ba1a1a]"
                         }`}
                       >
-                        {isNearest ? "Online" : "Offline"}
+                        {isNearest ? t("home.online") : t("home.offline")}
                       </div>
                     </div>
                   </button>
@@ -210,7 +219,7 @@ export function HomePage() {
             <div className="flex items-center gap-2">
               <Clock3 size={18} className="text-[#667085]" />
               <h2 className="text-[22px] font-bold tracking-[-0.02em] text-[#101828]">
-                Print History
+                {t("home.printHistory")}
               </h2>
             </div>
 
@@ -218,7 +227,11 @@ export function HomePage() {
               <div className="hide-scrollbar flex snap-x gap-4 overflow-x-auto pb-24">
                 {recentFiles.map((doc) => {
                   const badge = getHistoryBadge(doc.type);
-                  const printMode = getPrintMode(doc.type);
+                  const printMode = getPrintMode(
+                    doc.type,
+                    t("home.color"),
+                    t("home.bw"),
+                  );
 
                   return (
                     <article
@@ -235,7 +248,12 @@ export function HomePage() {
                           </span>
                         </div>
                         <span className="text-xs text-[#667085]">
-                          {formatHistoryDate(doc.createdAt)}
+                          {formatHistoryDate(
+                            doc.createdAt,
+                            dateLocale,
+                            t("home.today"),
+                            t("home.yesterday"),
+                          )}
                         </span>
                       </div>
 
@@ -245,8 +263,7 @@ export function HomePage() {
 
                       <div className="mt-4 flex items-center justify-between border-t border-black/6 pt-3">
                         <span className="text-xs text-[#667085]">
-                          {doc.pages} {doc.pages === 1 ? "page" : "pages"} •{" "}
-                          {printMode}
+                          {t("common.pages", { count: doc.pages })} / {printMode}
                         </span>
                         <span className="text-lg font-bold text-[#1a237e]">
                           {formatCurrency(doc.pages * PRINT_PRICE_PER_PAGE)}
@@ -258,7 +275,7 @@ export function HomePage() {
               </div>
             ) : (
               <div className="rounded-[22px] border border-dashed border-black/10 bg-white px-5 py-10 text-center text-sm text-[#667085]">
-                No print history yet.
+                {t("home.noPrintHistory")}
               </div>
             )}
           </section>

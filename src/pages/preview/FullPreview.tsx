@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
 import { getPreviewSession, type PagePreview } from "./previewSession";
 
@@ -76,6 +77,7 @@ function FullPreviewCard({ preview }: { preview: PagePreview }) {
 }
 
 export function FullPreview() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const session = getPreviewSession();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -125,11 +127,11 @@ export function FullPreview() {
               className="flex items-center gap-1 text-sm font-semibold text-[#1b1c1c]"
               onClick={() => navigate("/app/preview")}
             >
-              <ChevronLeft size={18} /> Back
+              <ChevronLeft size={18} /> {t("common.back")}
             </button>
           </div>
           <div className="flex flex-1 items-center justify-center px-6 text-center text-sm text-[#767683]">
-            No preview data yet. Open a document in Printing Preview first.
+            {t("preview.noPreviewData")}
           </div>
         </section>
       </MobileShell>
@@ -138,24 +140,29 @@ export function FullPreview() {
 
   return (
     <MobileShell>
-      <section className="flex min-h-0 flex-1 flex-col bg-[linear-gradient(135deg,#fbf9f8_0%,#e0e0ff_100%)]">
-        <div className="sticky top-0 z-10 flex items-center justify-between bg-transparent px-4 py-4 backdrop-blur-md">
-          <button
-            className="flex min-w-0 items-center gap-1 text-sm font-semibold text-[#1b1c1c]"
-            onClick={() => navigate("/app/preview")}
-          >
-            <ChevronLeft size={18} className="shrink-0" />
-            <span className="min-w-0 break-all text-left">
-              {session.fileName}
-            </span>
-          </button>
+      <section className="flex min-h-0 flex-1 flex-col overflow-x-hidden bg-[linear-gradient(135deg,#fbf9f8_0%,#e0e0ff_100%)]">
+        <div className="sticky top-0 z-10 overflow-hidden px-4 py-4 backdrop-blur-md">
+          <div className="flex w-full min-w-0 items-center gap-2 overflow-hidden">
+            <button
+              className="flex  shrink-0 items-center justify-center text-[#1b1c1c]"
+              onClick={() => navigate("/app/preview")}
+              aria-label={t("common.back")}
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <span className="block truncate text-left text-[20px] font-semibold tracking-[-0.01em] text-[#1b1c1c]">
+                {session.fileName}
+              </span>
+            </div>
+          </div>
         </div>
 
         <div
           ref={scrollRef}
-          className="flex-1 snap-y snap-mandatory overflow-y-auto px-4 py-3"
+          className="flex-1 snap-y snap-mandatory overflow-x-hidden overflow-y-auto px-4 py-3"
         >
-          <div className="mx-auto flex w-full max-w-[430px] flex-col gap-4">
+          <div className="mx-auto flex w-full min-w-0 max-w-[430px] flex-col gap-4">
             {session.previews.map((preview, index) => (
               <div
                 key={index}
@@ -176,14 +183,14 @@ export function FullPreview() {
         <div className="px-4 pb-4 pt-2">
           <div className="flex items-center justify-between rounded-[22px] border border-white/30 bg-white/70 px-4 py-3 text-sm font-medium text-[#454652] shadow-[0_8px_32px_rgba(26,35,126,0.05)] backdrop-blur-xl">
             <span>
-            {currentIndex + 1} / {session.previews.length}
+              {currentIndex + 1} / {session.previews.length}
             </span>
             <button
               type="button"
               onClick={() => navigate("/app/preview")}
               className="rounded-full bg-[#1a237e] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(26,35,126,0.18)]"
             >
-              View Printing Options
+              {t("preview.fullPreviewCta")}
             </button>
           </div>
         </div>

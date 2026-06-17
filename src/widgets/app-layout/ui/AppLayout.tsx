@@ -8,14 +8,19 @@ import { toast } from "react-toastify";
 import { validatePreviewFile } from "../../../shared/lib/file/validatePreviewFile";
 import EN from "../../../assets/en.png";
 import ID from "../../../assets/id.png";
+import { useTranslation } from "react-i18next";
+import { changeAppLanguage, type AppLanguage } from "../../../i18n";
 
 export function AppLayout() {
+  const { t, i18n } = useTranslation();
   const [isUploadSheetOpen, setIsUploadSheetOpen] = useState(false);
   const [isOpeningFile, setIsOpeningFile] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { openPreviewFile } = useRecentFiles();
-  const [selectedLanguage, setSelectedLanguage] = useState<"en" | "id">("en");
+  const [selectedLanguage, setSelectedLanguage] = useState<AppLanguage>(() =>
+    i18n.resolvedLanguage === "id_ID" ? "id" : "en",
+  );
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
@@ -58,14 +63,20 @@ export function AppLayout() {
         <button
           type="button"
           className="rounded-full border h-10 w-10 border-white/45 bg-white/35 p-0.5 text-[#1a237e] shadow-[0_4px_14px_rgba(15,23,42,0.06)] transition duration-150 active:scale-95 hover:bg-white/50"
-          aria-label="Change language"
-          onClick={() =>
-            setSelectedLanguage(selectedLanguage === "en" ? "id" : "en")
-          }
+          aria-label={t("app.changeLanguage")}
+          onClick={() => {
+            const nextLanguage = selectedLanguage === "en" ? "id" : "en";
+            setSelectedLanguage(nextLanguage);
+            void changeAppLanguage(nextLanguage);
+          }}
         >
           <img
             src={selectedLanguage === "en" ? EN : ID}
-            alt={selectedLanguage === "en" ? "English" : "Indonesian"}
+            alt={
+              selectedLanguage === "en"
+                ? t("common.language.english")
+                : t("common.language.indonesian")
+            }
             className="h-full w-full "
           />
         </button>
@@ -80,9 +91,9 @@ export function AppLayout() {
       <button
         className="absolute bottom-5 right-1/2 translate-x-1/2 uppercase min-w-[240px] h-12 px-4  gap-2  bg-[#1a237e] text-white flex justify-center items-center rounded-full"
         onClick={() => setIsUploadSheetOpen(true)}
-        aria-label="Upload file"
+        aria-label={t("common.uploadFile")}
       >
-        <Upload size={20} /> Upload document
+        <Upload size={20} /> {t("common.uploadDocument")}
       </button>
       <input
         ref={inputRef}
@@ -94,8 +105,8 @@ export function AppLayout() {
 
       <SettingsEditorSheet
         isOpen={isUploadSheetOpen}
-        title="Upload documents"
-        description="Pick a document or image and we'll open it in preview right away."
+        title={t("common.uploadDocuments")}
+        description={t("app.uploadDescription")}
         onClose={() => setIsUploadSheetOpen(false)}
         showActionButtons={false}
         showCloseButton={false}
@@ -113,10 +124,10 @@ export function AppLayout() {
 
             <div className="min-w-0 flex-1">
               <p className="text-base font-semibold text-[#000666]">
-                {isOpeningFile ? "Opening file..." : "Choose file"}
+                {isOpeningFile ? t("common.openingFile") : t("common.chooseFile")}
               </p>
               <p className="text-xs text-[#454652]">
-                PDF, DOCX, JPG or PNG up to 50 MB
+                {t("app.uploadFormats")}
               </p>
             </div>
 
@@ -128,10 +139,7 @@ export function AppLayout() {
 
           <div className="flex items-start gap-3 rounded-xl border border-[#bdc2ff] bg-[#e0e0ff]/40 p-3">
             <Info size={16} className="mt-0.5 shrink-0 text-[#1a237e]" />
-            <p className="text-xs leading-relaxed text-[#343d96]">
-              The preview opens automatically right after selection, without an
-              extra save step.
-            </p>
+            <p className="text-xs leading-relaxed text-[#343d96]">{t("app.uploadHint")}</p>
           </div>
         </div>
       </SettingsEditorSheet>

@@ -4,10 +4,10 @@ import Backend from "i18next-http-backend";
 
 const langMap = {
   en: "en_US",
-  ru: "id_ID",
+  id: "id_ID",
 } as const;
 
-type AppLanguage = keyof typeof langMap;
+export type AppLanguage = keyof typeof langMap;
 type I18nLanguage = (typeof langMap)[AppLanguage];
 
 function isAppLanguage(value: string): value is AppLanguage {
@@ -19,7 +19,9 @@ const initialLanguage: I18nLanguage | undefined =
   storedLang && isAppLanguage(storedLang) ? langMap[storedLang] : undefined;
 
 export const changeAppLanguage = (lang: AppLanguage): Promise<void> =>
-  i18n.changeLanguage(langMap[lang]);
+  i18n.changeLanguage(langMap[lang]).then(() => {
+    localStorage.setItem("userLang", lang);
+  });
 
 i18n
   .use(Backend)

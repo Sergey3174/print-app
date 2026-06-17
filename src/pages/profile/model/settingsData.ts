@@ -1,4 +1,5 @@
 import type { SettingsSection, SettingsValue } from "./types";
+import type { TFunction } from "i18next";
 
 export const genderOptions = ["female", "male"] as const;
 export const activityLevelOptions = ["Low", "Medium", "High"] as const;
@@ -38,31 +39,37 @@ export const heightFractionValues = Array.from({ length: 10 }, (_, index) =>
   String(index),
 );
 
-export const settingsSections: SettingsSection[] = [
-  {
-    title: "Profile Settings",
-    items: [
-      { id: "gender", label: "Gender", trailing: "chevron" },
-      { id: "birthDate", label: "Date of Birth", trailing: "chevron" },
-      { id: "weight", label: "Weight", trailing: "chevron" },
-      { id: "height", label: "Height", trailing: "chevron" },
-    ],
-  },
-  {
-    title: "General Settings",
-    items: [
-      { id: "sound", label: "Sound", trailing: "sound" },
-      { id: "activityLevel", label: "Activity Level", trailing: "chevron" },
-      {
-        id: "target",
-        label: "Consumption Target",
-        trailing: "chevron",
-      },
-      { id: "city", label: "City", trailing: "chevron" },
-      { id: "logout", label: "Logout", trailing: "logout" },
-    ],
-  },
-];
+export function getSettingsSections(t: TFunction): SettingsSection[] {
+  return [
+    {
+      title: t("profile.sectionProfile"),
+      items: [
+        { id: "gender", label: t("profile.gender"), trailing: "chevron" },
+        { id: "birthDate", label: t("profile.birthDate"), trailing: "chevron" },
+        { id: "weight", label: t("profile.weight"), trailing: "chevron" },
+        { id: "height", label: t("profile.height"), trailing: "chevron" },
+      ],
+    },
+    {
+      title: t("profile.sectionGeneral"),
+      items: [
+        { id: "sound", label: t("profile.sound"), trailing: "sound" },
+        {
+          id: "activityLevel",
+          label: t("profile.activityLevel"),
+          trailing: "chevron",
+        },
+        {
+          id: "target",
+          label: t("profile.target"),
+          trailing: "chevron",
+        },
+        { id: "city", label: t("profile.city"), trailing: "chevron" },
+        { id: "logout", label: t("profile.logout"), trailing: "logout" },
+      ],
+    },
+  ];
+}
 
 export const settingsValuesFromApi: SettingsValue[] = [
   { id: "gender", value: "Male" },

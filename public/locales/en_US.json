@@ -1,0 +1,203 @@
+{
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading...",
+    "on": "On",
+    "off": "Off",
+    "notSet": "Not set",
+    "value": "Value",
+    "chooseFile": "Choose file",
+    "openingFile": "Opening file...",
+    "uploadDocument": "Upload document",
+    "uploadDocuments": "Upload documents",
+    "uploadFile": "Upload file",
+    "language": {
+      "english": "English",
+      "indonesian": "Indonesian"
+    },
+    "pages_one": "{{count}} page",
+    "pages_other": "{{count}} pages"
+  },
+  "auth": {
+    "loginTitle": "Your body needs water!",
+    "loginSubtitle": "Track your daily water intake with just a few taps!",
+    "continueWith": "Continue with {{provider}}"
+  },
+  "app": {
+    "changeLanguage": "Change language",
+    "uploadDescription": "Pick a document or image and we'll open it in preview right away.",
+    "uploadFormats": "PDF, DOCX, JPG or PNG up to 50 MB",
+    "uploadHint": "The preview opens automatically right after selection, without an extra save step."
+  },
+  "home": {
+    "nearbyPrintPoints": "Nearby Print Points",
+    "viewMap": "View Map",
+    "collapseMap": "Collapse Map",
+    "nearestPrinter": "Nearest self-service printer",
+    "printerPoint": "Self-service printer point",
+    "online": "Online",
+    "offline": "Offline",
+    "printHistory": "Print History",
+    "noPrintHistory": "No print history yet.",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "color": "Color",
+    "bw": "B&W"
+  },
+  "map": {
+    "defaultLocation": "Jakarta (default location)",
+    "youAreHere": "You are here",
+    "printerAt": "Printer at"
+  },
+  "preview": {
+    "title": "Preview",
+    "copy": "Copy",
+    "pages": "Pages",
+    "custom": "Custom",
+    "allPages": "All Pages",
+    "selected": "Selected:",
+    "type": "Type",
+    "sides": "Sides",
+    "color": "Color",
+    "bw": "B&W",
+    "bothSides": "Both Sides",
+    "oneSide": "One Side",
+    "continue": "Continue",
+    "selectPages": "Select Pages",
+    "totalPages": "Total pages: {{count}}",
+    "methodRange": "Method 1: Range",
+    "methodCustom": "Method 2: Custom Format",
+    "from": "From",
+    "to": "To",
+    "customPlaceholder": "e.g., 1-5, 1-5,8, 1-5,8,10-12",
+    "customHelper": "Separated by commas. Use hyphens for ranges (e.g., 1-3).",
+    "invalidFormat": "Invalid format. Use: 1-5, 1-5,8, or 1-5,8,10-12",
+    "noValidPages": "No valid pages in range",
+    "enterPageRange": "Please enter a page range",
+    "fillBothFields": "Please fill both From and To fields",
+    "startBetween": "Start page must be between 1 and {{totalPages}}",
+    "endBetween": "End page must be between 1 and {{totalPages}}",
+    "startLessOrEqual": "Start page must be less than or equal to end page",
+    "noFileSelected": "No file selected",
+    "fullPreviewCta": "View Printing Options",
+    "noPreviewData": "No preview data yet. Open a document in Printing Preview first."
+  },
+  "payment": {
+    "title": "Payment Details",
+    "emptyState": "No payment data yet. Open Printing Preview first.",
+    "printerPayment": "Printer payment",
+    "chooseMethod": "Continue with a convenient payment method",
+    "total": "Total",
+    "printing": "Printing",
+    "type": "Type",
+    "sides": "Sides",
+    "totalAmount": "Total Amount",
+    "bankCard": "Bank Card",
+    "qris": "Qris",
+    "waiting": "Waiting for payment...",
+    "qrAlt": "Payment QR",
+    "scanQr": "Scan this QR with your banking app."
+  },
+  "printSuccess": {
+    "defaultDocument": "Your document",
+    "done": "Done",
+    "queued": "Queued",
+    "paid": "Paid",
+    "printed": "Printed",
+    "complete": "Complete",
+    "pagesReady": "Pages ready",
+    "printerFound": "Printer found",
+    "reserved": "Reserved",
+    "status": "Status",
+    "delivered": "Delivered",
+    "finished": "Finished",
+    "ready": "Ready",
+    "uploaded": "Uploaded",
+    "starting": "Starting",
+    "success": "Success",
+    "printingStarted": "Printing started",
+    "readyMessage": "{{fileName}} is ready. You can collect it from the printer now.",
+    "processingMessage": "{{fileName}} has been sent to the printer. Please wait while the job is being completed.",
+    "summary": "Print summary",
+    "backHome": "Back to Home"
+  },
+  "scanner": {
+    "preparingCamera": "Preparing camera",
+    "requestingAccess": "Requesting camera access",
+    "noFileSelected": "No file selected yet. Please upload a document first.",
+    "cameraUnsupported": "Camera is not supported on this device.",
+    "cameraUnavailable": "Camera unavailable",
+    "pointCamera": "Point the camera at the printer QR code",
+    "printerFound": "Printer found",
+    "scanSuccess": "Printer QR scanned successfully.",
+    "recognizeError": "Unable to recognize the QR code. Try moving the camera closer.",
+    "scannerActive": "Scanner is active",
+    "openCameraError": "Unable to open the camera. Check permissions and try again.",
+    "title": "Scanner",
+    "qrDetected": "QR code detected",
+    "openingPreview": "Opening preview",
+    "recognitionInProgress": "Recognition in progress"
+  },
+  "profile": {
+    "headerTitle": "Stay hydrated",
+    "headerSubtitle": "Track your water intake",
+    "sectionProfile": "Profile Settings",
+    "sectionGeneral": "General Settings",
+    "gender": "Gender",
+    "birthDate": "Date of Birth",
+    "weight": "Weight",
+    "height": "Height",
+    "sound": "Sound",
+    "activityLevel": "Activity Level",
+    "target": "Consumption Target",
+    "city": "City",
+    "logout": "Logout",
+    "notificationSound": "Notification sound",
+    "currentState": "Current state: {{value}}",
+    "targetPlaceholder": "Enter ml amount",
+    "newValuePlaceholder": "Enter a new value",
+    "testNotificationTitle": "Notifications enabled",
+    "testNotificationBody": "You will now receive water reminders.",
+    "toggleSound": "Toggle sound",
+    "months": {
+      "January": "January",
+      "February": "February",
+      "March": "March",
+      "April": "April",
+      "May": "May",
+      "June": "June",
+      "July": "July",
+      "August": "August",
+      "September": "September",
+      "October": "October",
+      "November": "November",
+      "December": "December"
+    },
+    "options": {
+      "gender": {
+        "female": "Female",
+        "male": "Male"
+      },
+      "activityLevel": {
+        "Low": "Low",
+        "Medium": "Medium",
+        "High": "High"
+      }
+    }
+  },
+  "settingsSheet": {
+    "editSetting": "Edit setting",
+    "close": "Close sheet"
+  },
+  "stats": {
+    "overview": "Hydration overview",
+    "title": "Stats",
+    "badge": "STATS",
+    "inProgress": "In progress"
+  },
+  "validation": {
+    "unsupportedFormat": "Unsupported format. Please choose PDF, DOCX, JPG, JPEG, or PNG."
+  }
+}

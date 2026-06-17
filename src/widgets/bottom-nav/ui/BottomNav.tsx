@@ -5,6 +5,7 @@ import { SettingsEditorSheet } from "../../../pages/profile/ui/SettingsEditorShe
 import { useRecentFiles } from "../../app-layout/model/recentFilesContext";
 import { toast } from "react-toastify";
 import { validatePreviewFile } from "../../../shared/lib/file/validatePreviewFile";
+import { useTranslation } from "react-i18next";
 
 type BottomNavItem = {
   to: string;
@@ -34,6 +35,7 @@ const items: BottomNavItem[] = [
 ];
 
 export function BottomNav() {
+  const { t } = useTranslation();
   const [isUploadSheetOpen, setIsUploadSheetOpen] = useState(false);
   const [isOpeningFile, setIsOpeningFile] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -87,7 +89,9 @@ export function BottomNav() {
                   >
                     <Upload size={22} />
                   </span>
-                  <span className="text-[14px] font-medium">{item.label}</span>
+                  <span className="text-[14px] font-medium">
+                    {t("common.uploadDocument")}
+                  </span>
                 </div>
               </button>
             );
@@ -116,7 +120,7 @@ export function BottomNav() {
                       }
                       strokeWidth={isActive && item.fillOnActive ? 0 : 2}
                     />
-                    {isActive && item.label === "Home" ? (
+                    {isActive && item.to === "/app" ? (
                       <span className="absolute bottom-[4px] h-[9px] w-[6px] rounded-t-[2px] bg-black" />
                     ) : null}
                   </span>
@@ -138,8 +142,8 @@ export function BottomNav() {
 
       <SettingsEditorSheet
         isOpen={isUploadSheetOpen}
-        title="Upload documents"
-        description="Pick a document or image and we'll open it in preview right away."
+        title={t("common.uploadDocuments")}
+        description={t("app.uploadDescription")}
         onClose={() => setIsUploadSheetOpen(false)}
         showActionButtons={false}
         showCloseButton
@@ -157,10 +161,10 @@ export function BottomNav() {
 
             <div className="min-w-0 flex-1">
               <p className="text-base font-semibold text-[#000666]">
-                {isOpeningFile ? "Opening file..." : "Choose file"}
+                {isOpeningFile ? t("common.openingFile") : t("common.chooseFile")}
               </p>
               <p className="text-xs text-[#454652]">
-                PDF, DOCX, JPG or PNG up to 50 MB
+                {t("app.uploadFormats")}
               </p>
             </div>
 
@@ -172,10 +176,7 @@ export function BottomNav() {
 
           <div className="flex items-start gap-3 rounded-xl border border-[#bdc2ff] bg-[#e0e0ff]/40 p-3">
             <Info size={16} className="mt-0.5 shrink-0 text-[#1a237e]" />
-            <p className="text-xs leading-relaxed text-[#343d96]">
-              The preview opens automatically right after selection, without an
-              extra save step.
-            </p>
+            <p className="text-xs leading-relaxed text-[#343d96]">{t("app.uploadHint")}</p>
           </div>
         </div>
       </SettingsEditorSheet>

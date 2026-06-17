@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Check, Printer } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
 import PrintingAnimation from "../../features/auth/model/animation/SuccessRequest";
 import { formatCurrency } from "../../shared/lib/formatCurrency";
@@ -42,12 +43,13 @@ function FloatingTicket({
 }
 
 export function PrintSuccess() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const state = (location.state as PrintSuccessState | null) ?? {};
   const [isComplete, setIsComplete] = useState(false);
 
-  const fileName = state.fileName ?? "Your document";
+  const fileName = state.fileName ?? t("printSuccess.defaultDocument");
   const pagesCount = state.selectedPagesCount ?? 0;
   const totalPrice = state.totalPrice ?? 0;
 
@@ -77,20 +79,36 @@ export function PrintSuccess() {
 
           <FloatingTicket
             className="left-3 top-16 rotate-[-10deg]"
-            title={isComplete ? "Done" : "Queued"}
+            title={isComplete ? t("printSuccess.done") : t("printSuccess.queued")}
             items={
               isComplete
-                ? ["Paid", "Printed", "Complete"]
-                : ["Pages ready", "Printer found", "Reserved"]
+                ? [
+                    t("printSuccess.paid"),
+                    t("printSuccess.printed"),
+                    t("printSuccess.complete"),
+                  ]
+                : [
+                    t("printSuccess.pagesReady"),
+                    t("printSuccess.printerFound"),
+                    t("printSuccess.reserved"),
+                  ]
             }
           />
           <FloatingTicket
             className="right-3 top-22 rotate-[9deg]"
-            title="Status"
+            title={t("printSuccess.status")}
             items={
               isComplete
-                ? ["Delivered", "Finished", "Ready"]
-                : ["Paid", "Uploaded", "Starting"]
+                ? [
+                    t("printSuccess.delivered"),
+                    t("printSuccess.finished"),
+                    t("printSuccess.ready"),
+                  ]
+                : [
+                    t("printSuccess.paid"),
+                    t("printSuccess.uploaded"),
+                    t("printSuccess.starting"),
+                  ]
             }
           />
 
@@ -100,21 +118,23 @@ export function PrintSuccess() {
                 <Printer size={32} className="text-white" strokeWidth={2.4} />
               </div>
               <h1 className="mt-5 text-center text-[29px] font-extrabold tracking-[-0.03em] text-[#1a237e]">
-                {isComplete ? "Success" : "Printing started"}
+                {isComplete
+                  ? t("printSuccess.success")
+                  : t("printSuccess.printingStarted")}
               </h1>
               <p className="mt-2 break-all text-center text-sm leading-5 text-[#454652]">
                 {isComplete
-                  ? `${fileName} is ready. You can collect it from the printer now.`
-                  : `${fileName} has been sent to the printer. Please wait while the job is being completed.`}
+                  ? t("printSuccess.readyMessage", { fileName })
+                  : t("printSuccess.processingMessage", { fileName })}
               </p>
             </div>
 
             <div className="mt-6 rounded-[18px] bg-[#f5f3f3] px-4 py-3 text-center shadow-[inset_0_0_0_1px_rgba(76,86,175,0.08)]">
               <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#8690ee]">
-                Print summary
+                {t("printSuccess.summary")}
               </p>
               <div className="mt-2 flex items-center justify-center gap-3 text-sm font-semibold text-[#454652]">
-                <span>{pagesCount || 1} pages</span>
+                <span>{t("common.pages", { count: pagesCount || 1 })}</span>
                 <span className="h-1 w-1 rounded-full bg-[#bdc2ff]" />
                 <span>{formatCurrency(totalPrice)}</span>
               </div>
@@ -126,7 +146,7 @@ export function PrintSuccess() {
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#1a237e] px-5 py-3.5 text-sm font-bold text-white shadow-[0_16px_28px_rgba(26,35,126,0.22)] transition-transform active:scale-[0.99]"
             >
               <Printer size={16} />
-              Back to Home
+              {t("printSuccess.backHome")}
             </button>
           </div>
         </div>

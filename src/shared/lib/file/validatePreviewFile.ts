@@ -1,3 +1,5 @@
+import i18n from "../../../i18n";
+
 const SUPPORTED_PREVIEW_EXTENSIONS = new Set(["pdf", "docx", "jpg", "jpeg", "png"]);
 
 export function validatePreviewFile(file: File) {
@@ -12,6 +14,6 @@ export function validatePreviewFile(file: File) {
 
   return {
     isValid: false,
-    errorMessage: "Unsupported format. Please choose PDF, DOCX, JPG, JPEG, or PNG.",
+    errorMessage: i18n.t("validation.unsupportedFormat"),
   };
 }
