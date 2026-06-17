@@ -406,7 +406,7 @@ export function Preview() {
             </div>
 
             {pageMode === "custom" && selectedPages.length > 0 && (
-              <div className="flex items-center gap-2 rounded-2xl bg-[#e0e0ff]/45 px-4 py-3 text-xs text-[#454652]">
+              <div className="flex items-center gap-2 rounded-2xl bg-[#e0e0ff]/45 px-4 py-3.5 text-sm text-[#454652]">
                 <span className="font-semibold text-[#1a237e]">Selected:</span>
                 <span className="font-semibold text-[#000666]">
                   {selectedPages.slice(0, 5).join(", ")}
@@ -486,14 +486,14 @@ export function Preview() {
         onSave={() => setIsPageSheetOpen(false)}
         disabled={rangeError !== null && pageMode === "custom"}
       >
-        <div className="flex flex-col gap-4">
-          <div className="border-b border-gray-200 pb-4">
-            <label className="mb-3 block text-xs font-semibold uppercase text-gray-600">
+        <div className="flex flex-col gap-3">
+          <div className="rounded-[22px] border border-white/40 bg-white/65 p-3.5 shadow-[0_8px_28px_rgba(26,35,126,0.05)] backdrop-blur-sm">
+            <label className="mb-3 block text-[11px] font-bold uppercase tracking-[0.12em] text-[#767683]">
               Method 1: Range
             </label>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-900">
+                <label className="mb-2 block text-sm font-semibold text-[#454652]">
                   From
                 </label>
                 <input
@@ -508,11 +508,11 @@ export function Preview() {
                       setPageRangeInput("");
                     }
                   }}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-2xl border border-[#d5d7e2] bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(245,246,255,0.92))] px-4 py-2.5 text-sm font-semibold text-[#000666] shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_8px_20px_rgba(26,35,126,0.04)] outline-none transition placeholder:text-[#9b9baa] focus:border-[#b7bccf] focus:bg-white focus:shadow-[0_0_0_4px_rgba(189,194,255,0.24)]"
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-900">
+                <label className="mb-2 block text-sm font-semibold text-[#454652]">
                   To
                 </label>
                 <input
@@ -527,14 +527,14 @@ export function Preview() {
                       setPageRangeInput("");
                     }
                   }}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-2xl border border-[#d5d7e2] bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(245,246,255,0.92))] px-4 py-2.5 text-sm font-semibold text-[#000666] shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_8px_20px_rgba(26,35,126,0.04)] outline-none transition placeholder:text-[#9b9baa] focus:border-[#b7bccf] focus:bg-white focus:shadow-[0_0_0_4px_rgba(189,194,255,0.24)]"
                 />
               </div>
             </div>
           </div>
 
-          <div>
-            <label className="mb-3 block text-xs font-semibold uppercase text-gray-600">
+          <div className="rounded-[22px] border border-white/40 bg-white/65 p-3.5 shadow-[0_8px_28px_rgba(26,35,126,0.05)] backdrop-blur-sm">
+            <label className="mb-2.5 block text-[11px] font-bold uppercase tracking-[0.12em] text-[#767683]">
               Method 2: Custom Format
             </label>
             <input
@@ -542,32 +542,36 @@ export function Preview() {
               placeholder="e.g., 1-5, 1-5,8, 1-5,8,10-12"
               value={pageRangeInput}
               onChange={(e) => setPageRangeInput(e.target.value)}
-              className={`w-full rounded-lg border px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 ${
+              className={`w-full rounded-2xl border px-4 py-2.5 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_8px_20px_rgba(26,35,126,0.04)] outline-none transition placeholder:text-[#9b9baa] ${
                 rangeError && pageRangeInput.trim()
-                  ? "border-red-300 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-blue-500"
+                  ? "border-[#f1b7bd] bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(255,244,245,0.96))] text-[#8f2332] focus:border-[#e1828d] focus:bg-white focus:shadow-[0_0_0_4px_rgba(241,183,189,0.28)]"
+                  : "border-[#d5d7e2] bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(245,246,255,0.92))] text-[#000666] focus:border-[#b7bccf] focus:bg-white focus:shadow-[0_0_0_4px_rgba(189,194,255,0.24)]"
               }`}
             />
-            <p className="mt-2 text-xs text-gray-500">
+            <p className="mt-1.5 text-[11px] leading-4.5 text-[#767683]">
               Separated by commas. Use hyphens for ranges (e.g., 1-3).
             </p>
           </div>
 
           {rangeError && (
-            <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3">
-              <AlertCircle className="mt-0.5 shrink-0 text-red-500" size={16} />
-              <p className="text-sm text-red-900">{rangeError}</p>
+            <div className="flex items-start gap-2.5 rounded-[20px] border border-[#f3c6cb] bg-[linear-gradient(180deg,rgba(255,247,248,0.96),rgba(255,239,242,0.92))] p-3.5 shadow-[0_8px_24px_rgba(143,35,50,0.08)]">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#fff1f3] text-[#c73c4f]">
+                <AlertCircle size={14} />
+              </div>
+              <p className="pt-0.5 text-sm font-medium leading-5 text-[#8f2332]">
+                {rangeError}
+              </p>
             </div>
           )}
 
           {!rangeError && selectedPages.length > 0 && (
-            <div className="rounded-lg border border-green-200 bg-green-50 p-3">
-              <p className="text-sm font-medium text-green-900">
+            <div className="rounded-[20px] border border-[#c7e8d6] bg-[linear-gradient(180deg,rgba(244,255,249,0.96),rgba(233,250,240,0.94))] p-3.5 shadow-[0_8px_24px_rgba(0,104,118,0.08)]">
+              <p className="text-sm font-semibold text-[#006876]">
                 Selected:{" "}
                 <span className="font-bold">{selectedPagesCount}</span> page
                 {selectedPagesCount !== 1 ? "s" : ""}
               </p>
-              <p className="mt-1 text-xs text-green-800">
+              <p className="mt-1 text-[11px] leading-4.5 text-[#2d5f57]">
                 {selectedPages.slice(0, 10).join(", ")}
                 {selectedPages.length > 10 ? "..." : ""}
               </p>

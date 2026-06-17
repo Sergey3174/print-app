@@ -112,17 +112,17 @@ export function PaymentPreview() {
   return (
     <MobileShell>
       <section className="flex min-h-0 flex-1 flex-col overflow-auto bg-[linear-gradient(135deg,#fbf9f8_0%,#e0e0ff_100%)]">
-        <header className="sticky top-0 z-10 flex shrink-0 h-14 items-center justify-between bg-transparent px-4 backdrop-blur-xs">
-          <div className="flex items-center gap-4">
+        <header className="sticky top-0 z-10 flex shrink-0 py-4 items-center justify-between bg-transparent px-4 backdrop-blur-xs">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               aria-label="Go back"
-              className="flex h-10 w-10 items-center justify-center rounded-full text-[#000666] transition active:scale-95"
+              className="flex items-center justify-center rounded-full text-[#000666] transition active:scale-95"
               onClick={() => navigate("/app/preview")}
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={18} />
             </button>
-            <h1 className="text-2xl font-bold text-[#1b1c1c]">
+            <h1 className="text-[20px] font-semibold tracking-[-0.01em] text-[#1b1c1c]">
               Payment Details
             </h1>
           </div>
