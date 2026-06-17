@@ -32,7 +32,7 @@ export default defineConfig({
       manifest: {
         name: "Print",
         short_name: "Print",
-        theme_color: "#00ace8",
+        theme_color: "#1a237e",
         background_color: "#ffffff",
         display: "standalone",
         start_url: "/",

@@ -97,11 +97,7 @@ export function PrintSuccess() {
           <div className="relative z-10 w-full rounded-t-[24px] border border-white/70 bg-white/82 px-5 pb-6 pt-5 shadow-[0_24px_50px_rgba(26,35,126,0.12)] backdrop-blur-xl">
             <div className="mx-auto flex w-full flex-col items-center rounded-[22px] bg-[linear-gradient(180deg,#ffffff_0%,#f7f7ff_100%)] px-6 pb-5 pt-6 shadow-[0_16px_38px_rgba(26,35,126,0.08)]">
               <div className="flex h-18 w-18 items-center justify-center rounded-[24px] bg-[radial-gradient(circle_at_30%_30%,#8690ee_0%,#4c56af_58%,#1a237e_100%)] shadow-[0_14px_30px_rgba(26,35,126,0.24)]">
-                {isComplete ? (
-                  <Check size={34} className="text-white" strokeWidth={3} />
-                ) : (
-                  <Printer size={32} className="text-white" strokeWidth={2.4} />
-                )}
+                <Printer size={32} className="text-white" strokeWidth={2.4} />
               </div>
               <h1 className="mt-5 text-center text-[29px] font-extrabold tracking-[-0.03em] text-[#1a237e]">
                 {isComplete ? "Success" : "Printing started"}

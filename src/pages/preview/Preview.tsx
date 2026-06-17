@@ -128,7 +128,7 @@ export function Preview() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const totalPages = previews?.length ?? activeRecentFile?.pages ?? 0;
-  const pricePerPage = 2;
+  const pricePerPage = 20000.21;
 
   const selectedPages = useMemo(() => {
     if (pageMode === "all") {
@@ -153,6 +153,8 @@ export function Preview() {
 
   const selectedPagesCount = selectedPages.length;
   const totalPrice = pricePerPage * selectedPagesCount;
+
+  console.log("totalPrice", totalPrice);
 
   const rangeError = useMemo(() => {
     if (pageMode === "all") return null;
@@ -266,7 +268,7 @@ export function Preview() {
   return (
     <MobileShell>
       <section className="flex min-h-0 flex-1 flex-col overflow-auto bg-[linear-gradient(135deg,#fbf9f8_0%,#e0e0ff_100%)]">
-        <div className="sticky top-0 z-10 flex items-center gap-2 bg-transparent px-4 py-4 backdrop-blur-md">
+        <div className="sticky top-0 z-10 flex items-center gap-2 bg-transparent px-4 py-4 backdrop-blur-xs">
           <button
             className="flex items-center gap-1 text-sm font-semibold text-[#1b1c1c]"
             onClick={() => navigate("/app")}

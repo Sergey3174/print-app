@@ -38,7 +38,7 @@ function InfoTile({
 }) {
   return (
     <div className="rounded-2xl border border-white/40 bg-white/35 p-4 backdrop-blur-sm">
-      <div className="mb-1 flex items-center gap-2 text-[#006876]">
+      <div className="mb-1 flex items-center gap-2 text-[#1a237e]">
         {icon}
         <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#454652]">
           {label}
@@ -112,7 +112,7 @@ export function PaymentPreview() {
   return (
     <MobileShell>
       <section className="flex min-h-0 flex-1 flex-col overflow-auto bg-[linear-gradient(135deg,#fbf9f8_0%,#e0e0ff_100%)]">
-        <header className="sticky top-0 z-10 flex shrink-0 h-14 items-center justify-between bg-transparent px-4 backdrop-blur-md">
+        <header className="sticky top-0 z-10 flex shrink-0 h-14 items-center justify-between bg-transparent px-4 backdrop-blur-xs">
           <div className="flex items-center gap-4">
             <button
               type="button"
