@@ -11,27 +11,14 @@ const jakarta: [number, number] = [106.8456, -6.2088];
 const defaultCurrentPosition: [number, number] = jakarta;
 
 export type PrinterPoint = {
-  id: number;
+  id: string;
   position: [number, number];
   title: string;
+  is_online: boolean;
 };
 
-export const printerPoints: PrinterPoint[] = [
-  { id: 2, position: [106.865, -6.1751] as [number, number], title: "Monas" },
-  {
-    id: 3,
-    position: [106.809, -6.224] as [number, number],
-    title: "South Jakarta",
-  },
-  { id: 4, position: [106.814, -6.137] as [number, number], title: "Old Town" },
-  {
-    id: 5,
-    position: [106.652, -6.302] as [number, number],
-    title: "West Jakarta",
-  },
-];
-
 type MapProps = {
+  points: PrinterPoint[];
   isExpanded: boolean;
   selectedPoint: PrinterPoint | null;
   onToggleExpanded?: () => void;
@@ -44,6 +31,7 @@ type MapProps = {
 };
 
 export function Map({
+  points,
   isExpanded,
   selectedPoint,
   onNearestPointChange,
@@ -54,7 +42,7 @@ export function Map({
   const map = useRef<mapboxgl.Map | null>(null);
   const userMarker = useRef<mapboxgl.Marker | null>(null);
   const defaultMarker = useRef<mapboxgl.Marker | null>(null);
-  const pointMarkers = useRef<Map<number, mapboxgl.Marker>>(
+  const pointMarkers = useRef<Map<string, mapboxgl.Marker>>(
     new globalThis.Map(),
   );
 
@@ -77,19 +65,6 @@ export function Map({
 
     const popupOptions = { offset: 25, focusAfterOpen: false };
 
-    printerPoints.forEach((marker) => {
-      const popup = new mapboxgl.Popup(popupOptions).setText(marker.title);
-      const markerInstance = new mapboxgl.Marker()
-        .setLngLat(marker.position)
-        .setPopup(popup)
-        .addTo(map.current!);
-
-      markerInstance.getElement().addEventListener("click", () => {
-        onSelectPoint(marker);
-      });
-      pointMarkers.current.set(marker.id, markerInstance);
-    });
-
     const defaultPopup = new mapboxgl.Popup(popupOptions).setText(
       t("map.defaultLocation"),
     );
@@ -103,7 +78,29 @@ export function Map({
       map.current?.remove();
       map.current = null;
     };
-  }, [onSelectPoint, t]);
+  }, [t]);
+
+  useEffect(() => {
+    if (!map.current) return;
+
+    pointMarkers.current.forEach((marker) => marker.remove());
+    pointMarkers.current.clear();
+
+    const popupOptions = { offset: 25, focusAfterOpen: false };
+
+    points.forEach((point) => {
+      const popup = new mapboxgl.Popup(popupOptions).setText(point.title);
+      const markerInstance = new mapboxgl.Marker()
+        .setLngLat(point.position)
+        .setPopup(popup)
+        .addTo(map.current!);
+
+      markerInstance.getElement().addEventListener("click", () => {
+        onSelectPoint(point);
+      });
+      pointMarkers.current.set(point.id, markerInstance);
+    });
+  }, [onSelectPoint, points]);
 
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -130,7 +127,9 @@ export function Map({
       return;
     }
 
-    const popup = new mapboxgl.Popup({ offset: 25 }).setText(t("map.youAreHere"));
+    const popup = new mapboxgl.Popup({ offset: 25 }).setText(
+      t("map.youAreHere"),
+    );
     userMarker.current = new mapboxgl.Marker({ color: "#2563eb" })
       .setLngLat(userPosition)
       .setPopup(popup)
@@ -140,7 +139,11 @@ export function Map({
   const currentPosition = userPosition ?? defaultCurrentPosition;
 
   const nearestPoint = useMemo(() => {
-    return printerPoints.reduce((nearest, marker) => {
+    if (!points.length) {
+      return null;
+    }
+
+    return points.reduce((nearest, marker) => {
       const currentDistance = getDistance(
         currentPosition[1],
         currentPosition[0],
@@ -156,9 +159,13 @@ export function Map({
 
       return currentDistance < nearestDistance ? marker : nearest;
     });
-  }, [currentPosition]);
+  }, [currentPosition, points]);
 
   const nearestDistance = useMemo(() => {
+    if (!nearestPoint) {
+      return 0;
+    }
+
     return getDistance(
       currentPosition[1],
       currentPosition[0],
@@ -168,11 +175,15 @@ export function Map({
   }, [currentPosition, nearestPoint]);
 
   const activePoint =
-    selectedPoint && selectedPoint.id !== nearestPoint.id
+    nearestPoint && selectedPoint && selectedPoint.id !== nearestPoint.id
       ? selectedPoint
       : nearestPoint;
 
   const activeDistance = useMemo(() => {
+    if (!activePoint) {
+      return 0;
+    }
+
     return getDistance(
       currentPosition[1],
       currentPosition[0],
@@ -182,6 +193,8 @@ export function Map({
   }, [activePoint, currentPosition]);
 
   useEffect(() => {
+    if (!nearestPoint) return;
+
     onNearestPointChange(nearestPoint, nearestDistance, currentPosition);
   }, [currentPosition, nearestDistance, nearestPoint, onNearestPointChange]);
 
@@ -230,7 +243,9 @@ export function Map({
                 {activeDistance.toFixed(1)} km
               </div>
               <span className="shrink-0">|</span>
-              <div className="truncate">{activePoint.title}</div>
+              <div className="truncate">
+                {activePoint?.title ?? t("map.defaultLocation")}
+              </div>
             </div>
           </div>
         </div>

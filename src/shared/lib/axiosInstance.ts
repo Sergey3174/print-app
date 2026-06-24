@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getCid } from "./cid";
 
 export const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
@@ -6,11 +7,11 @@ export const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      config.headers.Authorization = token;
-    }
+  async (config) => {
+    const cid = await getCid();
+
+    config.headers["X-Key-Cid"] = cid;
+
     return config;
   },
   (error) => {

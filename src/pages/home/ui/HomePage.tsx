@@ -1,14 +1,17 @@
-import { useCallback, useMemo, useState } from "react";
-import { Clock3, FileText, MapPin, Printer } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { FileText, MapPin, Printer } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import {
-  Map,
-  printerPoints,
-  type PrinterPoint,
-} from "../../../widgets/map/Map";
+import { useDispatch, useSelector } from "react-redux";
+import { Map, type PrinterPoint } from "../../../widgets/map/Map";
+import { usePrinters } from "../../../hooks/usePrinters";
 import { useRecentFiles } from "../../../widgets/app-layout/model/recentFilesContext";
 import { getDistance } from "../../../shared/lib/getDisatnce";
 import { formatCurrency } from "../../../shared/lib/formatCurrency";
+import { type AppDispatch, type RootState } from "../../../app/store/store";
+import {
+  clearSelectedPrinter,
+  setSelectedPrinter,
+} from "../../../entities/printer/store/selectedPrinterSlice";
 
 export type WaterAmount = number;
 
@@ -63,9 +66,13 @@ function getPrintMode(type: string, colorLabel: string, bwLabel: string) {
 
 export function HomePage() {
   const { t, i18n } = useTranslation();
+  const { printers } = usePrinters();
+  const dispatch = useDispatch<AppDispatch>();
+  const selectedPrinter = useSelector(
+    (state: RootState) => state.selectedPrinter.printer,
+  );
   const { recentFiles } = useRecentFiles();
   const [isMapExpanded, setIsMapExpanded] = useState(false);
-  const [selectedPoint, setSelectedPoint] = useState<PrinterPoint | null>(null);
   const [nearestPoint, setNearestPoint] = useState<PrinterPoint | null>(null);
   const [nearestDistance, setNearestDistance] = useState(0);
   const [currentPosition, setCurrentPosition] = useState<
@@ -73,6 +80,40 @@ export function HomePage() {
   >(null);
 
   const dateLocale = i18n.resolvedLanguage === "id_ID" ? "id-ID" : "en-US";
+
+  const printerPoints = useMemo<PrinterPoint[]>(
+    () =>
+      printers.map((printer) => ({
+        id: printer.pid,
+        position: [printer.longitude, printer.latitude],
+        title: printer.name,
+        is_online: printer.is_online,
+      })),
+    [printers],
+  );
+
+  const selectedPoint = useMemo(
+    () =>
+      selectedPrinter
+        ? (printerPoints.find((point) => point.id === selectedPrinter.pid) ??
+          null)
+        : null,
+    [printerPoints, selectedPrinter],
+  );
+
+  useEffect(() => {
+    if (!selectedPrinter) {
+      return;
+    }
+
+    const hasSelectedPrinter = printers.some(
+      (printer) => printer.pid === selectedPrinter.pid,
+    );
+
+    if (!hasSelectedPrinter) {
+      dispatch(clearSelectedPrinter());
+    }
+  }, [dispatch, printers, selectedPrinter]);
 
   const printerCards = useMemo(() => {
     if (!nearestPoint) return [];
@@ -118,17 +159,31 @@ export function HomePage() {
     [],
   );
 
+  const handleSelectPoint = useCallback(
+    (point: PrinterPoint) => {
+      const printer = printers.find((item) => item.pid === point.id);
+
+      if (!printer) {
+        return;
+      }
+
+      dispatch(setSelectedPrinter(printer));
+    },
+    [dispatch, printers],
+  );
+
   return (
     <section className="flex w-full flex-1 flex-col overflow-hidden bg-[linear-gradient(135deg,#fbf9f8_0%,#e0e0ff_100%)]">
       <div className="min-h-0 flex-1 overflow-auto px-4 pt-20">
         <div className="mx-auto flex w-full max-w-[720px] flex-col gap-6">
           <div className="overflow-hidden rounded-[22px] border border-black/5 bg-white shadow-[0_8px_28px_rgba(17,24,39,0.08)]">
             <Map
+              points={printerPoints}
               isExpanded={isMapExpanded}
               selectedPoint={selectedPoint}
               onToggleExpanded={() => setIsMapExpanded((prev) => !prev)}
               onNearestPointChange={handleNearestPointChange}
-              onSelectPoint={setSelectedPoint}
+              onSelectPoint={handleSelectPoint}
             />
           </div>
 
@@ -164,7 +219,7 @@ export function HomePage() {
                     onTouchStart={(event) => event.preventDefault()}
                     onMouseDown={(event) => event.preventDefault()}
                     onFocus={(event) => event.currentTarget.blur()}
-                    onClick={() => setSelectedPoint(point)}
+                    onClick={() => handleSelectPoint(point)}
                     className={`flex items-center gap-4 rounded-[12px] border px-3 py-3 text-left shadow-[0_4px_12px_rgba(26,35,126,0.08)] transition ${
                       isSelected
                         ? "border-[#c6c5d4] bg-[#f5f3f3]"
@@ -196,17 +251,17 @@ export function HomePage() {
                     <div className="shrink-0 text-right">
                       <div
                         className={`text-xs font-bold ${
-                          isNearest ? "text-[#006876]" : "text-[#454652]"
+                          point.is_online ? "text-[#006876]" : "text-[#454652]"
                         }`}
                       >
                         {distanceLabel}
                       </div>
                       <div
                         className={`mt-1 text-xs ${
-                          isNearest ? "text-[#006876]" : "text-[#ba1a1a]"
+                          point.is_online ? "text-[#006876]" : "text-[#ba1a1a]"
                         }`}
                       >
-                        {isNearest ? t("home.online") : t("home.offline")}
+                        {point.is_online ? t("home.online") : t("home.offline")}
                       </div>
                     </div>
                   </button>
@@ -217,7 +272,7 @@ export function HomePage() {
 
           <section className="space-y-3">
             <div className="flex items-center gap-2">
-              <Clock3 size={18} className="text-[#667085]" />
+              {/* <Clock3 size={18} className="text-[#667085]" /> */}
               <h2 className="text-[22px] font-bold tracking-[-0.02em] text-[#101828]">
                 {t("home.printHistory")}
               </h2>
@@ -263,7 +318,8 @@ export function HomePage() {
 
                       <div className="mt-4 flex items-center justify-between border-t border-black/6 pt-3">
                         <span className="text-xs text-[#667085]">
-                          {t("common.pages", { count: doc.pages })} / {printMode}
+                          {t("common.pages", { count: doc.pages })} /{" "}
+                          {printMode}
                         </span>
                         <span className="text-lg font-bold text-[#1a237e]">
                           {formatCurrency(doc.pages * PRINT_PRICE_PER_PAGE)}

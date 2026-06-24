@@ -2,12 +2,9 @@ import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { LoginPage } from "../pages/auth/ui/LoginPage";
 import { HomePage } from "../pages/home/ui/HomePage";
-import { ProfilePage } from "../pages/profile/ui/ProfilePage";
-import { StatsPage } from "../pages/stats/ui/StatsPage";
 import { AppLayout } from "../widgets/app-layout/ui/AppLayout";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { OauthPage } from "../pages/auth/ui/OauthPage";
 import { Provider, useDispatch } from "react-redux";
 import { initializeUserFromStorage } from "../entities/user/slice/userSlice";
 import { type AppDispatch, store } from "./store/store";
@@ -70,22 +67,7 @@ function AppRouter() {
             </RequireGuest>
           }
         />
-        <Route
-          path="/oauth/redirect"
-          element={
-            <RequireGuest>
-              <OauthPage />
-            </RequireGuest>
-          }
-        />
-        <Route
-          path="/oauth"
-          element={
-            <RequireGuest>
-              <OauthPage />
-            </RequireGuest>
-          }
-        />
+
         <Route
           path="/app/printer-scanner"
           element={
@@ -135,8 +117,6 @@ function AppRouter() {
           }
         >
           <Route index element={<HomePage />} />
-          <Route path="stats" element={<StatsPage />} />
-          <Route path="profile" element={<ProfilePage />} />
         </Route>
         {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
       </Routes>
@@ -149,7 +129,7 @@ export function App() {
   return (
     <Provider store={store}>
       <RecentFilesProvider>
-      {/* <pwa-install
+        {/* <pwa-install
         use-local-storage
         // install-description="Custom call to install text"
         disable-screenshots
