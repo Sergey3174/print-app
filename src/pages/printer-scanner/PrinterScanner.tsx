@@ -8,8 +8,12 @@ import {
 import { ArrowLeft, Camera, CheckCircle2, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useRecentFiles } from "../../widgets/app-layout/model/recentFilesContext";
+import { type AppDispatch, type RootState } from "../../app/store/store";
+import { setSelectedPrinter } from "../../entities/printer/store/selectedPrinterSlice";
+import { validatePrinterQr } from "../../shared/lib/qr/validatePrinterQr";
 
 const REAR_CAMERA_PATTERNS = [
   /back/i,
@@ -91,7 +95,11 @@ async function getPreferredCamera() {
 export function PrinterScanner() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const { activeRecentFile } = useRecentFiles();
+  const printers = useSelector(
+    (state: RootState) => state.printers.data?.printers ?? [],
+  );
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -118,10 +126,41 @@ export function PrinterScanner() {
     streamRef.current = null;
   };
 
-  const goToPreview = (printerQr?: string) => {
-    navigate("/app/preview", {
-      state: printerQr ? { printerQr } : undefined,
-    });
+  const goToPreview = () => {
+    navigate("/app/preview");
+  };
+
+  const handleValidScanResult = (qrValue: string) => {
+    const validationResult = validatePrinterQr(qrValue);
+
+    if (!validationResult.isValid) {
+      setScannerError(validationResult.errorMessage);
+      setStatusText(validationResult.errorMessage);
+      toast.error(validationResult.errorMessage);
+      stopScanner();
+      return;
+    }
+
+    const matchedPrinter =
+      printers.find((printer) => printer.pid === validationResult.pid) ?? null;
+
+    if (!matchedPrinter) {
+      const errorMessage = `Printer ${validationResult.pid} not found`;
+      setScannerError(errorMessage);
+      setStatusText(errorMessage);
+      toast.error(errorMessage);
+      stopScanner();
+      return;
+    }
+
+    hasHandledResultRef.current = true;
+    dispatch(setSelectedPrinter(matchedPrinter));
+    setScanResult(qrValue);
+    setStatusText(t("scanner.printerFound"));
+    setScannerError(null);
+    toast.success(t("scanner.scanSuccess"));
+    stopScanner();
+    window.setTimeout(() => goToPreview(), 500);
   };
 
   const startScanner = async () => {
@@ -189,13 +228,7 @@ export function PrinterScanner() {
               return;
             }
 
-            hasHandledResultRef.current = true;
-            setScanResult(qrValue);
-            setStatusText(t("scanner.printerFound"));
-            setScannerError(null);
-            toast.success(t("scanner.scanSuccess"));
-            stopScanner();
-            window.setTimeout(() => goToPreview(qrValue), 500);
+            handleValidScanResult(qrValue);
             return;
           }
 
@@ -300,17 +333,21 @@ export function PrinterScanner() {
               type="button"
               className="flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-white text-base font-semibold text-[#1a237e] shadow-xl transition active:scale-95"
               onClick={() => {
-                stopScanner();
-                goToPreview();
+                if (scannerError) {
+                  void startScanner();
+                  return;
+                }
               }}
             >
               <RefreshCw
                 size={18}
                 className={!scanResult ? "animate-spin" : undefined}
               />
-              {scanResult
-                ? t("scanner.openingPreview")
-                : t("scanner.recognitionInProgress")}
+              {scannerError
+                ? "Retry scan"
+                : scanResult
+                  ? t("scanner.openingPreview")
+                  : t("scanner.recognitionInProgress")}
             </button>
 
             {/* <div className="rounded-2xl border border-white/12 bg-white/8 px-4 py-3 backdrop-blur-md"> */}

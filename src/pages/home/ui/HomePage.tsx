@@ -3,7 +3,6 @@ import { FileText, MapPin, Printer } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { Map, type PrinterPoint } from "../../../widgets/map/Map";
-import { usePrinters } from "../../../hooks/usePrinters";
 import { useRecentFiles } from "../../../widgets/app-layout/model/recentFilesContext";
 import { getDistance } from "../../../shared/lib/getDisatnce";
 import { formatCurrency } from "../../../shared/lib/formatCurrency";
@@ -66,8 +65,10 @@ function getPrintMode(type: string, colorLabel: string, bwLabel: string) {
 
 export function HomePage() {
   const { t, i18n } = useTranslation();
-  const { printers } = usePrinters();
   const dispatch = useDispatch<AppDispatch>();
+  const printers = useSelector(
+    (state: RootState) => state.printers.data?.printers ?? [],
+  );
   const selectedPrinter = useSelector(
     (state: RootState) => state.selectedPrinter.printer,
   );

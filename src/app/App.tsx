@@ -1,13 +1,17 @@
 import { useEffect } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { LoginPage } from "../pages/auth/ui/LoginPage";
+import { Provider, useDispatch, useSelector } from "react-redux";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import { HomePage } from "../pages/home/ui/HomePage";
 import { AppLayout } from "../widgets/app-layout/ui/AppLayout";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Provider, useDispatch } from "react-redux";
-import { initializeUserFromStorage } from "../entities/user/slice/userSlice";
-import { type AppDispatch, store } from "./store/store";
+import { store, type AppDispatch, type RootState } from "./store/store";
 import "@khmyznikov/pwa-install";
 import { Preview } from "../pages/preview/Preview";
 import { FullPreview } from "../pages/preview/FullPreview";
@@ -15,110 +19,59 @@ import { PaymentPreview } from "../pages/preview/PaymentPreview";
 import { PrintSuccess } from "../pages/preview/PrintSuccess";
 import { RecentFilesProvider } from "../widgets/app-layout/model/recentFilesContext";
 import { PrinterScanner } from "../pages/printer-scanner/PrinterScanner";
+import { usePrinters } from "../hooks/usePrinters";
+import { setSelectedPrinter } from "../entities/printer/store/selectedPrinterSlice";
 
-function RequireAuth({ children }: { children: React.ReactNode }) {
-  // const { isAuth, isInitialized } = useSelector(
-  //   (state: RootState) => state.user,
-  // );
+function QueryPrinterSync() {
+  const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
+  const { printers } = usePrinters();
+  const selectedPrinter = useSelector(
+    (state: RootState) => state.selectedPrinter.printer,
+  );
 
-  // if (!isInitialized) {
-  //   return null;
-  // }
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const printerPid = params.get("pid");
 
-  // if (!isAuth) {
-  //   return <Navigate to="/login" replace />;
-  // }
+    if (!printerPid || !printers.length) {
+      return;
+    }
 
-  return <>{children}</>;
+    const printerFromQuery =
+      printers.find((printer) => printer.pid === printerPid) ?? null;
+
+    if (!printerFromQuery || selectedPrinter?.pid === printerFromQuery.pid) {
+      return;
+    }
+
+    dispatch(setSelectedPrinter(printerFromQuery));
+  }, [dispatch, location.search, printers, selectedPrinter]);
+
+  return null;
 }
 
-function RequireGuest({ children }: { children: React.ReactNode }) {
-  // const { isAuth, isInitialized } = useSelector(
-  //   (state: RootState) => state.user,
-  // );
+function RootRedirect() {
+  const location = useLocation();
 
-  // if (!isInitialized) {
-  //   return null;
-  // }
-
-  // if (isAuth) {
-  //   return <Navigate to="/app/today" replace />;
-  // }
-
-  return <>{children}</>;
+  return <Navigate to={`/app${location.search}`} replace />;
 }
 
 function AppRouter() {
-  const dispatch = useDispatch<AppDispatch>();
-
-  useEffect(() => {
-    dispatch(initializeUserFromStorage());
-  }, [dispatch]);
-
   return (
     <BrowserRouter>
+      <QueryPrinterSync />
       <Routes>
-        <Route path="/" element={<Navigate to="/app" replace />} />
-        <Route
-          path="/login"
-          element={
-            <RequireGuest>
-              <LoginPage />
-            </RequireGuest>
-          }
-        />
-
-        <Route
-          path="/app/printer-scanner"
-          element={
-            <RequireAuth>
-              <PrinterScanner />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/app/preview"
-          element={
-            <RequireAuth>
-              <Preview />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/app/full-preview"
-          element={
-            <RequireAuth>
-              <FullPreview />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/app/payment-preview"
-          element={
-            <RequireAuth>
-              <PaymentPreview />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/app/print-success"
-          element={
-            <RequireAuth>
-              <PrintSuccess />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/app"
-          element={
-            <RequireAuth>
-              <AppLayout />
-            </RequireAuth>
-          }
-        >
+        <Route path="/" element={<RootRedirect />} />
+        <Route path="/app/printer-scanner" element={<PrinterScanner />} />
+        <Route path="/app/preview" element={<Preview />} />
+        <Route path="/app/full-preview" element={<FullPreview />} />
+        <Route path="/app/payment-preview" element={<PaymentPreview />} />
+        <Route path="/app/print-success" element={<PrintSuccess />} />
+        <Route path="/app" element={<AppLayout />}>
           <Route index element={<HomePage />} />
         </Route>
-        {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <ToastContainer position="top-center" autoClose={5000} />
     </BrowserRouter>

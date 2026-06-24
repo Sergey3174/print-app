@@ -3,7 +3,7 @@ import { MobileShell } from "../../mobile-shell/ui/MobileShell";
 import { useRef, useState, type ChangeEvent } from "react";
 import { useRecentFiles } from "../model/recentFilesContext";
 import { SettingsEditorSheet } from "../../../pages/profile/ui/SettingsEditorSheet";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FileText, Info, Upload } from "lucide-react";
 import { toast } from "react-toastify";
 import { validatePreviewFile } from "../../../shared/lib/file/validatePreviewFile";
@@ -11,7 +11,7 @@ import EN from "../../../assets/en.png";
 import ID from "../../../assets/id.png";
 import { useTranslation } from "react-i18next";
 import { changeAppLanguage, type AppLanguage } from "../../../i18n";
-import { type AppDispatch } from "../../../app/store/store";
+import { type AppDispatch, type RootState } from "../../../app/store/store";
 import { createTaskThunk } from "../../../entities/task/store/taskSlice";
 
 export function AppLayout() {
@@ -21,6 +21,9 @@ export function AppLayout() {
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
+  const selectedPrinter = useSelector(
+    (state: RootState) => state.selectedPrinter.printer,
+  );
   const { openPreviewFile } = useRecentFiles();
   const [selectedLanguage, setSelectedLanguage] = useState<AppLanguage>(() =>
     i18n.resolvedLanguage === "id_ID" ? "id" : "en",
@@ -47,7 +50,7 @@ export function AppLayout() {
       await dispatch(createTaskThunk(file)).unwrap();
       await openPreviewFile(file);
       setIsUploadSheetOpen(false);
-      navigate("/app/printer-scanner");
+      navigate(selectedPrinter ? "/app/preview" : "/app/printer-scanner");
     } catch (error) {
       toast.error(
         typeof error === "string" ? error : "Failed to upload document",
