@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, Scan, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
 import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
 import { SettingsEditorSheet } from "../../pages/profile/ui/SettingsEditorSheet";
 import { getFileBaseName } from "../../shared/lib/file/getFileBaseName";
@@ -9,13 +10,15 @@ import { getFileExtension } from "../../shared/lib/file/getFileExtension";
 import { useRecentFiles } from "../../widgets/app-layout/model/recentFilesContext";
 import { parsePages } from "./parsePages";
 import { setPreviewSession, type PagePreview } from "./previewSession";
-import { buildDocxPreviews } from "./lib/buildDocxPreviews";
 import { buildPdfPreviews } from "./lib/buildPdfPreviews";
 import { isPreviewImageExtension } from "./lib/isPreviewImageExtension";
 import { formatCurrency } from "../../shared/lib/formatCurrency";
+import { type AppDispatch, type RootState } from "../../app/store/store";
+import { fetchTaskStateThunk } from "../../entities/task/store/taskSlice";
 
 const DOCX_PAGE_WIDTH = 794;
 const DOCX_DEFAULT_PAGE_HEIGHT = 1123;
+const OFFICE_DOCUMENT_EXTENSIONS = ["doc", "docx"];
 
 function ToggleOption({
   options,
@@ -112,7 +115,9 @@ function Placeholder() {
 
 export function Preview() {
   const { t } = useTranslation();
+  const dispatch = useDispatch<AppDispatch>();
   const { activeRecentFile } = useRecentFiles();
+  const task = useSelector((state: RootState) => state.task);
   const [pagesPerSheet, setPagesPerSheet] = useState(1);
   const [pageMode, setPageMode] = useState<"all" | "custom">("all");
   const [pageRangeInput, setPageRangeInput] = useState("");
@@ -128,8 +133,16 @@ export function Preview() {
 
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const activeFile = activeRecentFile?.file ?? null;
+  const activeFileExtension = activeFile
+    ? getFileExtension(activeFile.name)
+    : null;
+  const isOfficeDocument =
+    activeFileExtension != null &&
+    OFFICE_DOCUMENT_EXTENSIONS.includes(activeFileExtension);
 
-  const totalPages = previews?.length ?? activeRecentFile?.pages ?? 0;
+  const totalPages =
+    previews?.length ?? task.pagesCount ?? activeRecentFile?.pages ?? 0;
   const pricePerPage = 20000.21;
 
   const selectedPages = useMemo(() => {
@@ -203,6 +216,24 @@ export function Preview() {
   };
 
   useEffect(() => {
+    void dispatch(fetchTaskStateThunk());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!isOfficeDocument || task.fileStatus !== "processing") {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      void dispatch(fetchTaskStateThunk());
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [dispatch, isOfficeDocument, task.fileStatus]);
+
+  useEffect(() => {
     let isCancelled = false;
 
     async function loadPreviewFromContext() {
@@ -225,6 +256,24 @@ export function Preview() {
       const fileBaseName = getFileBaseName(file.name);
       const extension = getFileExtension(file.name);
 
+      if (OFFICE_DOCUMENT_EXTENSIONS.includes(extension)) {
+        setFileName(task.originalFileName ?? activeRecentFile.title);
+
+        if (task.fileStatus === "processing") {
+          setLoading(true);
+          setPreviews(null);
+          setPreviewSession(null);
+          return;
+        }
+
+        if (task.fileStatus !== "ready" || !task.pdfFileUrl) {
+          setLoading(false);
+          setPreviews(null);
+          setPreviewSession(null);
+          return;
+        }
+      }
+
       setLoading(true);
       setPreviews(null);
       setPreviewSession(null);
@@ -234,8 +283,10 @@ export function Preview() {
 
         if (extension === "pdf") {
           result = await buildPdfPreviews(file);
-        } else if (extension === "docx") {
-          result = await buildDocxPreviews(file);
+        } else if (OFFICE_DOCUMENT_EXTENSIONS.includes(extension)) {
+          const response = await fetch(task.pdfFileUrl as string);
+          const pdfBlob = await response.blob();
+          result = await buildPdfPreviews(pdfBlob);
         } else if (isPreviewImageExtension(extension)) {
           result = [{ type: "image", src: URL.createObjectURL(file) }];
         }
@@ -246,7 +297,11 @@ export function Preview() {
 
         setPreviews(result);
         setPreviewSession({
-          fileName: fileBaseName,
+          fileName:
+            OFFICE_DOCUMENT_EXTENSIONS.includes(extension) &&
+            task.originalFileName
+              ? getFileBaseName(task.originalFileName)
+              : fileBaseName,
           previews: result,
         });
       } catch (err) {
@@ -265,7 +320,13 @@ export function Preview() {
     return () => {
       isCancelled = true;
     };
-  }, [activeRecentFile, t]);
+  }, [
+    activeRecentFile,
+    t,
+    task.fileStatus,
+    task.originalFileName,
+    task.pdfFileUrl,
+  ]);
 
   return (
     <MobileShell>

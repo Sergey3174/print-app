@@ -8,8 +8,11 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 const PDF_RENDER_SCALE = 2;
 
-export async function buildPdfPreviews(file: File): Promise<PagePreview[]> {
-  const buffer = await file.arrayBuffer();
+export async function buildPdfPreviews(
+  source: Blob | ArrayBuffer,
+): Promise<PagePreview[]> {
+  const buffer =
+    source instanceof ArrayBuffer ? source : await source.arrayBuffer();
   const pdf = await pdfjs.getDocument({ data: buffer }).promise;
   const result: PagePreview[] = [];
 
