@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Check, Printer } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
 import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
 import PrintingAnimation from "../../features/auth/model/animation/SuccessRequest";
 import { formatCurrency } from "../../shared/lib/formatCurrency";
+import type { AppDispatch, RootState } from "../../app/store/store";
+import { fetchPrintTaskStateThunk } from "../../entities/task/store/taskSlice";
 
 type PrintSuccessState = {
   fileName?: string;
@@ -46,22 +49,34 @@ export function PrintSuccess() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
+  const printState = useSelector((state: RootState) => state.task.printState);
+  const task = useSelector((state: RootState) => state.task);
   const state = (location.state as PrintSuccessState | null) ?? {};
-  const [isComplete, setIsComplete] = useState(false);
 
-  const fileName = state.fileName ?? t("printSuccess.defaultDocument");
-  const pagesCount = state.selectedPagesCount ?? 0;
-  const totalPrice = state.totalPrice ?? 0;
+  const fileName =
+    task.originalFileName ?? state.fileName ?? t("printSuccess.defaultDocument");
+  const pagesCount = printState?.pages_count ?? state.selectedPagesCount ?? 0;
+  const totalPrice = printState?.amount ?? state.totalPrice ?? 0;
+  const isComplete = printState?.status === "done";
 
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      setIsComplete(true);
-    }, 5000);
+    void dispatch(fetchPrintTaskStateThunk());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!printState || printState.status === "done") {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      void dispatch(fetchPrintTaskStateThunk());
+    }, 1000);
 
     return () => {
-      window.clearTimeout(timeoutId);
+      window.clearInterval(intervalId);
     };
-  }, []);
+  }, [dispatch, printState]);
 
   return (
     <MobileShell>

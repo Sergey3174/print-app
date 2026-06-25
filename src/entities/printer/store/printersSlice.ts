@@ -24,7 +24,24 @@ export const loadPrintersThunk = createAsyncThunk(
     const { data } = await axiosInstance.post("/api/printers");
 
     if (Array.isArray(data?.printers)) {
-      return data as PrintersMock;
+      return {
+        ...data,
+        printers: [
+          ...data?.printers,
+          {
+            pid: "JKT-OLDTOWN-03",
+            name: "Old Town Copy Center",
+            latitude: -6.137,
+            longitude: 106.814,
+            is_online: true,
+            is_busy: false,
+            price_bw: 9,
+            price_color: 19,
+            price_bw_duplex: 7,
+            price_color_duplex: 15,
+          },
+        ],
+      } as PrintersMock;
     }
 
     throw new Error("Invalid printers response");

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   ChevronLeft,
   CreditCard,
@@ -10,18 +10,15 @@ import {
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
 import { formatCurrency } from "../../shared/lib/formatCurrency";
-
-type PaymentPreviewState = {
-  fileName: string;
-  totalPages: number;
-  selectedPagesCount: number;
-  totalPrice: number;
-  type: string;
-  sides: string;
-  pagesPerSheet: number;
-};
+import type { AppDispatch, RootState } from "../../app/store/store";
+import {
+  payTaskThunk,
+  paymentCallbackThunk,
+} from "../../entities/task/store/taskSlice";
 
 type PaymentMethod = "none" | "sbp" | "card";
 
@@ -70,40 +67,18 @@ export function PaymentPreview() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const payment = location.state as PaymentPreviewState | null;
+  const dispatch = useDispatch<AppDispatch>();
+  const payment = useSelector((state: RootState) => state.task.estimate);
+  const task = useSelector((state: RootState) => state.task);
   const [activeMethod, setActiveMethod] = useState<PaymentMethod>("none");
 
   const translatePrintType = (value: string) => {
-    if (value === "Color") return t("preview.color");
-    if (value === "B&W") return t("preview.bw");
+    if (value === "color") return t("preview.color");
+    if (value === "black_white") return t("preview.bw");
     return value;
   };
 
-  const translateSides = (value: string) => {
-    if (value === "Both Sides") return t("preview.bothSides");
-    if (value === "One Side") return t("preview.oneSide");
-    return value;
-  };
-
-  useEffect(() => {
-    if (activeMethod !== "card" || !payment) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      navigate("/app/print-success", {
-        state: {
-          fileName: payment.fileName,
-          selectedPagesCount: payment.selectedPagesCount,
-          totalPrice: payment.totalPrice,
-        },
-      });
-    }, 2600);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [activeMethod, navigate, payment]);
+  const fileName = task.originalFileName ?? location.state?.fileName ?? "";
 
   if (!payment) {
     return (
@@ -151,7 +126,7 @@ export function PaymentPreview() {
                 <FileText size={32} className="text-white" />
               </div>
               <h2 className="mt-3 line-clamp-2 max-w-full text-xl font-semibold text-[#000666]">
-                {payment.fileName}
+                {fileName}
               </h2>
               <div className="mt-1 flex flex-col items-center">
                 <span className="text-sm font-semibold text-[#454652]">
@@ -167,22 +142,28 @@ export function PaymentPreview() {
               <InfoTile
                 icon={<FileText size={18} />}
                 label={t("payment.total")}
-                value={t("common.pages", { count: payment.totalPages })}
+                value={t("common.pages", { count: payment.total_pages_count })}
               />
               <InfoTile
                 icon={<Printer size={18} />}
                 label={t("payment.printing")}
-                value={t("common.pages", { count: payment.selectedPagesCount })}
+                value={t("common.pages", {
+                  count: payment.selected_pages_count,
+                })}
               />
               <InfoTile
                 icon={<Palette size={18} />}
                 label={t("payment.type")}
-                value={translatePrintType(payment.type)}
+                value={translatePrintType(payment.color_mode)}
               />
               <InfoTile
                 icon={<Layers3 size={18} />}
                 label={t("payment.sides")}
-                value={translateSides(payment.sides)}
+                value={
+                  payment.duplex
+                    ? t("preview.bothSides")
+                    : t("preview.oneSide")
+                }
               />
             </div>
 
@@ -192,7 +173,7 @@ export function PaymentPreview() {
                   {t("payment.totalAmount")}
                 </span>
                 <div className="text-4xl font-extrabold text-[#000666]">
-                  {formatCurrency(payment.totalPrice)}
+                  {formatCurrency(payment.amount)}
                 </div>
               </div>
             </div>
@@ -201,7 +182,36 @@ export function PaymentPreview() {
               <div className="flex flex-col gap-4">
                 <button
                   type="button"
-                  onClick={() => setActiveMethod("card")}
+                  onClick={async () => {
+                    try {
+                      setActiveMethod("card");
+                      await dispatch(payTaskThunk()).unwrap();
+                      const callbackResult = await dispatch(
+                        paymentCallbackThunk(),
+                      ).unwrap();
+
+                      if (callbackResult.status !== "done") {
+                        setActiveMethod("none");
+                        toast.error(`Payment status: ${callbackResult.status}`);
+                        return;
+                      }
+
+                      navigate("/app/print-success", {
+                        state: {
+                          fileName,
+                          selectedPagesCount: payment.selected_pages_count,
+                          totalPrice: payment.amount,
+                        },
+                      });
+                    } catch (error) {
+                      setActiveMethod("none");
+                      toast.error(
+                        typeof error === "string"
+                          ? error
+                          : "Failed to create payment",
+                      );
+                    }
+                  }}
                   className="flex h-14 w-full items-center justify-between rounded-2xl border border-[#1a237e]/20 bg-[#1a237e]/10 px-6 transition active:scale-[0.98]"
                 >
                   <div className="flex items-center gap-3">

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, Scan, AlertCircle } from "lucide-react";
+import { ChevronDown, ChevronLeft, Scan, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
 import { SettingsEditorSheet } from "../../pages/profile/ui/SettingsEditorSheet";
 import { getFileBaseName } from "../../shared/lib/file/getFileBaseName";
@@ -14,7 +15,11 @@ import { buildPdfPreviews } from "./lib/buildPdfPreviews";
 import { isPreviewImageExtension } from "./lib/isPreviewImageExtension";
 import { formatCurrency } from "../../shared/lib/formatCurrency";
 import { type AppDispatch, type RootState } from "../../app/store/store";
-import { fetchTaskStateThunk } from "../../entities/task/store/taskSlice";
+import {
+  estimateTaskThunk,
+  fetchTaskStateThunk,
+} from "../../entities/task/store/taskSlice";
+import { setSelectedPrinter } from "../../entities/printer/store/selectedPrinterSlice";
 
 const DOCX_PAGE_WIDTH = 794;
 const DOCX_DEFAULT_PAGE_HEIGHT = 1123;
@@ -24,26 +29,39 @@ function ToggleOption({
   options,
   active,
   onChange,
+  isOptionDisabled,
 }: {
   options: Array<{ value: string; label: string }>;
   active: string;
   onChange: (val: string) => void;
+  isOptionDisabled?: (value: string) => boolean;
 }) {
   return (
     <div className="flex w-full gap-1 rounded-2xl bg-white/35 p-1 backdrop-blur-sm">
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          onClick={() => onChange(opt.value)}
-          className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
-            active === opt.value
-              ? "bg-white text-[#000666] border border-[#000666]/20 shadow-[0_8px_20px_rgba(26,35,126,0.08)]"
-              : "text-[#767683]"
-          }`}
-        >
-          {opt.label}
-        </button>
-      ))}
+      {options.map((opt) => {
+        const isDisabled = isOptionDisabled?.(opt.value) ?? false;
+
+        return (
+          <button
+            key={opt.value}
+            onClick={() => {
+              if (!isDisabled) {
+                onChange(opt.value);
+              }
+            }}
+            disabled={isDisabled}
+            className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
+              active === opt.value
+                ? "bg-white text-[#000666] border border-[#000666]/20 shadow-[0_8px_20px_rgba(26,35,126,0.08)]"
+                : isDisabled
+                  ? "text-[#b0b3c4]"
+                  : "text-[#767683]"
+            }`}
+          >
+            {opt.label}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -118,6 +136,12 @@ export function Preview() {
   const dispatch = useDispatch<AppDispatch>();
   const { activeRecentFile } = useRecentFiles();
   const task = useSelector((state: RootState) => state.task);
+  const printers = useSelector(
+    (state: RootState) => state.printers.data?.printers ?? [],
+  );
+  const selectedPrinter = useSelector(
+    (state: RootState) => state.selectedPrinter.printer,
+  );
   const [pagesPerSheet, setPagesPerSheet] = useState(1);
   const [pageMode, setPageMode] = useState<"all" | "custom">("all");
   const [pageRangeInput, setPageRangeInput] = useState("");
@@ -143,7 +167,25 @@ export function Preview() {
 
   const totalPages =
     previews?.length ?? task.pagesCount ?? activeRecentFile?.pages ?? 0;
-  const pricePerPage = 20000.21;
+  const pricePerPage = useMemo(() => {
+    if (!selectedPrinter) {
+      return 0;
+    }
+
+    if (type === "Color" && sides === "Both Sides") {
+      return selectedPrinter.price_color_duplex;
+    }
+
+    if (type === "Color") {
+      return selectedPrinter.price_color;
+    }
+
+    if (sides === "Both Sides") {
+      return selectedPrinter.price_bw_duplex;
+    }
+
+    return selectedPrinter.price_bw;
+  }, [selectedPrinter, sides, type]);
 
   const selectedPages = useMemo(() => {
     if (pageMode === "all") {
@@ -167,9 +209,42 @@ export function Preview() {
   }, [pageMode, pageRangeInput, rangeStart, rangeEnd, totalPages]);
 
   const selectedPagesCount = selectedPages.length;
-  const totalPrice = pricePerPage * selectedPagesCount;
+  const totalPrice = pricePerPage * selectedPagesCount * pagesPerSheet;
+  const isCustomPagesDisabled = totalPages <= 1;
+  const isDuplexDisabled = selectedPagesCount <= 1;
+  const printRequestPayload = useMemo(
+    () => ({
+      pid: selectedPrinter?.pid ?? "",
+      tid: task.tid ?? "",
+      copies: pagesPerSheet,
+      pages: pageMode === "custom" ? selectedPages.join(",") : null,
+      color_mode:
+        type === "Color" ? ("color" as const) : ("black_white" as const),
+      duplex: sides === "Both Sides",
+    }),
+    [
+      pageMode,
+      pagesPerSheet,
+      selectedPages,
+      selectedPrinter?.pid,
+      sides,
+      task.tid,
+      type,
+    ],
+  );
 
-  console.log("totalPrice", totalPrice);
+  useEffect(() => {
+    if (isDuplexDisabled && sides === "Both Sides") {
+      setSides("One Side");
+    }
+  }, [isDuplexDisabled, sides]);
+
+  useEffect(() => {
+    if (isCustomPagesDisabled && pageMode === "custom") {
+      setPageMode("all");
+      setIsPageSheetOpen(false);
+    }
+  }, [isCustomPagesDisabled, pageMode]);
 
   const rangeError = useMemo(() => {
     if (pageMode === "all") return null;
@@ -408,6 +483,66 @@ export function Preview() {
         </div>
 
         <div className="mx-4 mb-4 rounded-[28px] border border-white/30 bg-white/70 p-5 shadow-[0_8px_32px_rgba(26,35,126,0.05)] backdrop-blur-xl">
+          <label className="block">
+            <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#767683]">
+              Selected printer
+            </span>
+            <div className="relative mt-3 overflow-hidden rounded-[22px] border border-black/5 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(240,242,255,0.92))] shadow-[0_8px_24px_rgba(26,35,126,0.06),inset_0_1px_0_rgba(255,255,255,0.85)] transition focus-within:border-[#b7bccf] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(189,194,255,0.24)]">
+              <div className="pointer-events-none flex items-center justify-between gap-3 px-3 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-[#101828]">
+                    {selectedPrinter?.name ?? "Choose printer"}
+                  </p>
+                  <p className="mt-1 truncate text-xs text-[#667085]">
+                    {selectedPrinter?.pid ?? "Select a printer from the list"}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {selectedPrinter ? (
+                    <span
+                      className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.08em] ${
+                        selectedPrinter.is_online
+                          ? "bg-[#ddf7eb] text-[#006876]"
+                          : "bg-[#ffe7e7] text-[#ba1a1a]"
+                      }`}
+                    >
+                      {selectedPrinter.is_online ? "Online" : "Offline"}
+                    </span>
+                  ) : null}
+                  <ChevronDown size={18} className="shrink-0 text-[#667085]" />
+                </div>
+              </div>
+
+              <select
+                value={selectedPrinter?.pid ?? ""}
+                onChange={(event) => {
+                  const printer =
+                    printers.find((item) => item.pid === event.target.value) ??
+                    null;
+
+                  if (!printer) {
+                    return;
+                  }
+
+                  dispatch(setSelectedPrinter(printer));
+                }}
+                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+              >
+                <option value="" disabled>
+                  Choose printer
+                </option>
+                {printers.map((printer) => (
+                  <option key={printer.pid} value={printer.pid}>
+                    {printer.name} ({printer.pid})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </label>
+        </div>
+
+        <div className="mx-4 mb-4 rounded-[28px] border border-white/30 bg-white/70 p-5 shadow-[0_8px_32px_rgba(26,35,126,0.05)] backdrop-blur-xl">
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="w-12 shrink-0 text-sm font-semibold text-[#454652]">
@@ -441,14 +576,21 @@ export function Preview() {
               <div className="flex w-full gap-1 rounded-2xl bg-white/35 p-1 backdrop-blur-sm">
                 <button
                   onClick={() => {
+                    if (isCustomPagesDisabled) {
+                      return;
+                    }
+
                     setPageMode("custom");
                     setIsPageSheetOpen(true);
                   }}
                   className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
                     pageMode === "custom"
                       ? "bg-white text-[#000666] border border-[#000666]/20  shadow-[0_8px_20px_rgba(26,35,126,0.08)]"
-                      : "text-[#767683]"
+                      : isCustomPagesDisabled
+                        ? "text-[#b0b3c4]"
+                        : "text-[#767683]"
                   }`}
+                  disabled={isCustomPagesDisabled}
                 >
                   {t("preview.custom")}
                 </button>
@@ -509,6 +651,9 @@ export function Preview() {
                 ]}
                 active={sides}
                 onChange={setSides}
+                isOptionDisabled={(value) =>
+                  value === "Both Sides" && isDuplexDisabled
+                }
               />
             </div>
           </div>
@@ -526,21 +671,38 @@ export function Preview() {
                 </p>
               </div>
               <button
-                onClick={() =>
-                  navigate("/app/payment-preview", {
-                    state: {
-                      fileName,
-                      totalPages,
-                      selectedPagesCount,
-                      totalPrice,
-                      type,
-                      sides,
-                      pagesPerSheet,
-                    },
-                  })
-                }
+                onClick={async () => {
+                  try {
+                    const estimateResult = await dispatch(
+                      estimateTaskThunk(printRequestPayload),
+                    ).unwrap();
+
+                    console.log(estimateResult);
+                    navigate("/app/payment-preview", {
+                      state: {
+                        fileName,
+                        totalPages,
+                        selectedPagesCount,
+                        totalPrice,
+                        type,
+                        sides,
+                        pagesPerSheet,
+                      },
+                    });
+                  } catch (error) {
+                    toast.error(
+                      typeof error === "string"
+                        ? error
+                        : "Failed to estimate task",
+                    );
+                  }
+                }}
                 className="ml-4 max-w-[200px] flex-1 rounded-full bg-[#1a237e] py-3.5 text-sm font-semibold text-white shadow-[0_16px_28px_rgba(26,35,126,0.22)] disabled:opacity-50"
-                disabled={rangeError !== null && pageMode === "custom"}
+                disabled={
+                  (rangeError !== null && pageMode === "custom") ||
+                  !printRequestPayload.pid ||
+                  !printRequestPayload.tid
+                }
               >
                 {t("preview.continue")}
               </button>
