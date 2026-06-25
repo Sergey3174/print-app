@@ -7,7 +7,14 @@ import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
 import PrintingAnimation from "../../features/auth/model/animation/SuccessRequest";
 import { formatCurrency } from "../../shared/lib/formatCurrency";
 import type { AppDispatch, RootState } from "../../app/store/store";
-import { fetchPrintTaskStateThunk } from "../../entities/task/store/taskSlice";
+import {
+  clearTask,
+  fetchPrintTaskStateThunk,
+} from "../../entities/task/store/taskSlice";
+import {
+  clearSavedTaskEstimate,
+  clearSavedTaskTid,
+} from "../../shared/lib/taskRecovery";
 
 type PrintSuccessState = {
   fileName?: string;
@@ -157,7 +164,12 @@ export function PrintSuccess() {
 
             <button
               type="button"
-              onClick={() => navigate("/app")}
+              onClick={() => {
+                dispatch(clearTask());
+                clearSavedTaskEstimate();
+                clearSavedTaskTid();
+                navigate("/app");
+              }}
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#1a237e] px-5 py-3.5 text-sm font-bold text-white shadow-[0_16px_28px_rgba(26,35,126,0.22)] transition-transform active:scale-[0.99]"
             >
               <Printer size={16} />

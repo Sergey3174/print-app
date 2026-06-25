@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   ChevronLeft,
   CreditCard,
@@ -16,6 +16,7 @@ import { MobileShell } from "../../widgets/mobile-shell/ui/MobileShell";
 import { formatCurrency } from "../../shared/lib/formatCurrency";
 import type { AppDispatch, RootState } from "../../app/store/store";
 import {
+  fetchTaskStateThunk,
   payTaskThunk,
   paymentCallbackThunk,
 } from "../../entities/task/store/taskSlice";
@@ -70,6 +71,9 @@ export function PaymentPreview() {
   const dispatch = useDispatch<AppDispatch>();
   const payment = useSelector((state: RootState) => state.task.estimate);
   const task = useSelector((state: RootState) => state.task);
+  const printers = useSelector(
+    (state: RootState) => state.printers.data?.printers ?? [],
+  );
   const [activeMethod, setActiveMethod] = useState<PaymentMethod>("none");
 
   const translatePrintType = (value: string) => {
@@ -79,6 +83,18 @@ export function PaymentPreview() {
   };
 
   const fileName = task.originalFileName ?? location.state?.fileName ?? "";
+  const estimatedPrinter =
+    payment
+      ? printers.find((printer) => printer.pid === payment.pid) ?? null
+      : null;
+
+  useEffect(() => {
+    if (!task.tid || task.originalFileName) {
+      return;
+    }
+
+    void dispatch(fetchTaskStateThunk());
+  }, [dispatch, task.originalFileName, task.tid]);
 
   if (!payment) {
     return (
@@ -130,10 +146,10 @@ export function PaymentPreview() {
               </h2>
               <div className="mt-1 flex flex-col items-center">
                 <span className="text-sm font-semibold text-[#454652]">
-                  {t("payment.printerPayment")}
+                  {estimatedPrinter?.name ?? t("payment.printerPayment")}
                 </span>
                 <span className="text-xs text-[#454652]/70">
-                  {t("payment.chooseMethod")}
+                  {payment.pid}
                 </span>
               </div>
             </div>

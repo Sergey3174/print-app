@@ -1,6 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../../shared/lib/axiosInstance";
 import type { RootState } from "../../../app/store/store";
+import {
+  saveTaskEstimate,
+  saveTaskTid,
+} from "../../../shared/lib/taskRecovery";
 
 type CreateTaskResponse = {
   tid: string;
@@ -130,6 +134,7 @@ export const createTaskThunk = createAsyncThunk<
       return rejectWithValue("Invalid task response");
     }
 
+    saveTaskTid(data.tid);
     return data;
   } catch (error) {
     return rejectWithValue("Failed to create task");
@@ -274,6 +279,12 @@ const taskSlice = createSlice({
   name: "task",
   initialState,
   reducers: {
+    setTaskTid: (state, action: { payload: string }) => {
+      state.tid = action.payload;
+    },
+    setTaskEstimate: (state, action: { payload: EstimateTaskResponse }) => {
+      state.estimate = action.payload;
+    },
     clearTask: (state) => {
       state.tid = null;
       state.isLoading = false;
@@ -349,6 +360,7 @@ const taskSlice = createSlice({
       .addCase(estimateTaskThunk.fulfilled, (state, action) => {
         state.isLoading = false;
         state.estimate = action.payload;
+        saveTaskEstimate(JSON.stringify(action.payload));
       })
       .addCase(estimateTaskThunk.rejected, (state, action) => {
         state.isLoading = false;
@@ -392,5 +404,5 @@ const taskSlice = createSlice({
   },
 });
 
-export const { clearTask } = taskSlice.actions;
+export const { clearTask, setTaskEstimate, setTaskTid } = taskSlice.actions;
 export const taskReducer = taskSlice.reducer;

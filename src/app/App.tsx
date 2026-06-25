@@ -21,6 +21,15 @@ import { RecentFilesProvider } from "../widgets/app-layout/model/recentFilesCont
 import { PrinterScanner } from "../pages/printer-scanner/PrinterScanner";
 import { usePrinters } from "../hooks/usePrinters";
 import { setSelectedPrinter } from "../entities/printer/store/selectedPrinterSlice";
+import {
+  setTaskEstimate,
+  setTaskTid,
+  type EstimateTaskResponse,
+} from "../entities/task/store/taskSlice";
+import {
+  getSavedTaskEstimate,
+  getSavedTaskTid,
+} from "../shared/lib/taskRecovery";
 
 function QueryPrinterSync() {
   const location = useLocation();
@@ -51,6 +60,46 @@ function QueryPrinterSync() {
   return null;
 }
 
+function TaskRecoverySync() {
+  const dispatch = useDispatch<AppDispatch>();
+  const tid = useSelector((state: RootState) => state.task.tid);
+  const estimate = useSelector((state: RootState) => state.task.estimate);
+
+  useEffect(() => {
+    if (tid) {
+      return;
+    }
+
+    const savedTid = getSavedTaskTid();
+
+    if (!savedTid) {
+      return;
+    }
+
+    dispatch(setTaskTid(savedTid));
+  }, [dispatch, tid]);
+
+  useEffect(() => {
+    if (estimate) {
+      return;
+    }
+
+    const savedEstimate = getSavedTaskEstimate();
+
+    if (!savedEstimate) {
+      return;
+    }
+
+    try {
+      dispatch(setTaskEstimate(JSON.parse(savedEstimate) as EstimateTaskResponse));
+    } catch {
+      // Ignore malformed recovery payload.
+    }
+  }, [dispatch, estimate]);
+
+  return null;
+}
+
 function RootRedirect() {
   const location = useLocation();
 
@@ -60,6 +109,7 @@ function RootRedirect() {
 function AppRouter() {
   return (
     <BrowserRouter>
+      <TaskRecoverySync />
       <QueryPrinterSync />
       <Routes>
         <Route path="/" element={<RootRedirect />} />

@@ -160,13 +160,14 @@ export function Preview() {
   const activeFile = activeRecentFile?.file ?? null;
   const activeFileExtension = activeFile
     ? getFileExtension(activeFile.name)
-    : null;
+    : task.originalFormat?.toLowerCase() ?? null;
   const isOfficeDocument =
     activeFileExtension != null &&
     OFFICE_DOCUMENT_EXTENSIONS.includes(activeFileExtension);
 
-  const totalPages =
-    previews?.length ?? task.pagesCount ?? activeRecentFile?.pages ?? 0;
+  const totalPages = isOfficeDocument
+    ? previews?.length ?? task.pagesCount ?? 0
+    : previews?.length ?? task.pagesCount ?? activeRecentFile?.pages ?? 0;
   const pricePerPage = useMemo(() => {
     if (!selectedPrinter) {
       return 0;
@@ -312,27 +313,36 @@ export function Preview() {
     let isCancelled = false;
 
     async function loadPreviewFromContext() {
-      if (!activeRecentFile) {
-        setFileName(t("preview.noFileSelected"));
+      const file = activeRecentFile?.file ?? null;
+      const serverFileUrl = task.pdfFileUrl;
+      const originalFileName = task.originalFileName;
+      const extension = file
+        ? getFileExtension(file.name)
+        : task.originalFormat?.toLowerCase() ?? null;
+
+      if (!file && !serverFileUrl) {
+        setFileName(
+          originalFileName ?? activeRecentFile?.title ?? t("preview.noFileSelected"),
+        );
         setPreviews(null);
         setPreviewSession(null);
         return;
       }
 
-      setFileName(activeRecentFile.title);
+      setFileName(originalFileName ?? activeRecentFile?.title ?? t("preview.noFileSelected"));
 
-      if (!activeRecentFile.file) {
+      if (!extension) {
         setPreviews(null);
         setPreviewSession(null);
         return;
       }
 
-      const file = activeRecentFile.file;
-      const fileBaseName = getFileBaseName(file.name);
-      const extension = getFileExtension(file.name);
+      const fileBaseName = getFileBaseName(
+        file?.name ?? originalFileName ?? t("preview.noFileSelected"),
+      );
 
       if (OFFICE_DOCUMENT_EXTENSIONS.includes(extension)) {
-        setFileName(task.originalFileName ?? activeRecentFile.title);
+        setFileName(originalFileName ?? activeRecentFile?.title ?? fileBaseName);
 
         if (task.fileStatus === "processing") {
           setLoading(true);
@@ -356,14 +366,22 @@ export function Preview() {
       try {
         let result: PagePreview[] | null = null;
 
-        if (extension === "pdf") {
+        if (extension === "pdf" && file) {
           result = await buildPdfPreviews(file);
-        } else if (OFFICE_DOCUMENT_EXTENSIONS.includes(extension)) {
-          const response = await fetch(task.pdfFileUrl as string);
+        } else if (extension === "pdf" && serverFileUrl) {
+          const response = await fetch(serverFileUrl);
           const pdfBlob = await response.blob();
           result = await buildPdfPreviews(pdfBlob);
-        } else if (isPreviewImageExtension(extension)) {
+        } else if (OFFICE_DOCUMENT_EXTENSIONS.includes(extension)) {
+          const response = await fetch(serverFileUrl as string);
+          const pdfBlob = await response.blob();
+          result = await buildPdfPreviews(pdfBlob);
+        } else if (isPreviewImageExtension(extension) && file) {
           result = [{ type: "image", src: URL.createObjectURL(file) }];
+        } else if (isPreviewImageExtension(extension) && serverFileUrl) {
+          const response = await fetch(serverFileUrl);
+          const pdfBlob = await response.blob();
+          result = await buildPdfPreviews(pdfBlob);
         }
 
         if (isCancelled || !result) {
@@ -399,6 +417,7 @@ export function Preview() {
     activeRecentFile,
     t,
     task.fileStatus,
+    task.originalFormat,
     task.originalFileName,
     task.pdfFileUrl,
   ]);
