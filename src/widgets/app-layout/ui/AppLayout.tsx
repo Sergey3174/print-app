@@ -101,7 +101,7 @@ export function AppLayout() {
       <Outlet />
 
       <button
-        className="absolute bottom-5 right-1/2 translate-x-1/2 uppercase min-w-[240px] h-12 px-4  gap-2  bg-[#1a237e] text-white flex justify-center items-center rounded-2xl"
+        className="absolute bottom-5 right-1/2 translate-x-1/2 uppercase min-w-[240px] h-12 px-4  gap-2  bg-[#1a237e] text-white flex justify-center items-center rounded-2xl "
         onClick={() => setIsUploadSheetOpen(true)}
         aria-label={t("common.uploadFile")}
       >
