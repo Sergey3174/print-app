@@ -7,6 +7,7 @@ import {
   Palette,
   Printer,
   QrCode,
+  Quote,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -83,10 +84,9 @@ export function PaymentPreview() {
   };
 
   const fileName = task.originalFileName ?? location.state?.fileName ?? "";
-  const estimatedPrinter =
-    payment
-      ? printers.find((printer) => printer.pid === payment.pid) ?? null
-      : null;
+  const estimatedPrinter = payment
+    ? (printers.find((printer) => printer.pid === payment.pid) ?? null)
+    : null;
 
   useEffect(() => {
     if (!task.tid || task.originalFileName) {
@@ -148,9 +148,7 @@ export function PaymentPreview() {
                 <span className="text-sm font-semibold text-[#454652]">
                   {estimatedPrinter?.name ?? t("payment.printerPayment")}
                 </span>
-                <span className="text-xs text-[#454652]/70">
-                  {payment.pid}
-                </span>
+                <span className="text-xs text-[#454652]/70">{payment.pid}</span>
               </div>
             </div>
 
@@ -176,10 +174,15 @@ export function PaymentPreview() {
                 icon={<Layers3 size={18} />}
                 label={t("payment.sides")}
                 value={
-                  payment.duplex
-                    ? t("preview.bothSides")
-                    : t("preview.oneSide")
+                  payment.duplex ? t("preview.bothSides") : t("preview.oneSide")
                 }
+              />
+            </div>
+            <div className="mt-4">
+              <InfoTile
+                icon={<Quote size={18} />}
+                label={"TID"}
+                value={payment.tid}
               />
             </div>
 
@@ -246,7 +249,9 @@ export function PaymentPreview() {
                 >
                   <div className="flex items-center gap-3">
                     <QrCode size={20} className="text-[#006876]" />
-                    <span className="font-semibold text-[#1b1c1c]">{t("payment.qris")}</span>
+                    <span className="font-semibold text-[#1b1c1c]">
+                      {t("payment.qris")}
+                    </span>
                   </div>
                   <span className="text-xl text-[#006876]/40">›</span>
                 </button>

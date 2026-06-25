@@ -62,7 +62,9 @@ export function PrintSuccess() {
   const state = (location.state as PrintSuccessState | null) ?? {};
 
   const fileName =
-    task.originalFileName ?? state.fileName ?? t("printSuccess.defaultDocument");
+    task.originalFileName ??
+    state.fileName ??
+    t("printSuccess.defaultDocument");
   const pagesCount = printState?.pages_count ?? state.selectedPagesCount ?? 0;
   const totalPrice = printState?.amount ?? state.totalPrice ?? 0;
   const isComplete = printState?.status === "done";
@@ -101,7 +103,9 @@ export function PrintSuccess() {
 
           <FloatingTicket
             className="left-3 top-16 rotate-[-10deg]"
-            title={isComplete ? t("printSuccess.done") : t("printSuccess.queued")}
+            title={
+              isComplete ? t("printSuccess.done") : t("printSuccess.queued")
+            }
             items={
               isComplete
                 ? [
@@ -170,7 +174,7 @@ export function PrintSuccess() {
                 clearSavedTaskTid();
                 navigate("/app");
               }}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#1a237e] px-5 py-3.5 text-sm font-bold text-white shadow-[0_16px_28px_rgba(26,35,126,0.22)] transition-transform active:scale-[0.99]"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#1a237e] px-5 py-3.5 text-sm font-bold text-white shadow-[0_16px_28px_rgba(26,35,126,0.22)] transition-transform active:scale-[0.99]"
             >
               <Printer size={16} />
               {t("printSuccess.backHome")}

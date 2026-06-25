@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, ChevronLeft, Scan, AlertCircle } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  Scan,
+  AlertCircle,
+  QrCode,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
@@ -131,6 +137,20 @@ function Placeholder() {
   );
 }
 
+function PreviewLoader({ label }: { label: string }) {
+  return (
+    <div className="flex min-h-[286px] flex-col items-center justify-center rounded-[24px] border border-white/50 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(242,244,255,0.82))] px-6 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+      <div className="relative flex h-16 w-16 items-center justify-center">
+        <div className="absolute inset-0 rounded-full border-4 border-[#d9defd]" />
+        <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-r-[#4c56af] border-t-[#1a237e]" />
+        <div className="h-8 w-8 rounded-full bg-white/80 shadow-[0_6px_18px_rgba(26,35,126,0.12)]" />
+      </div>
+      <p className="mt-5 text-sm font-semibold text-[#1a237e]">{label}</p>
+      <p className="mt-1 text-xs text-[#767683]">Preparing file preview</p>
+    </div>
+  );
+}
+
 export function Preview() {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
@@ -160,14 +180,14 @@ export function Preview() {
   const activeFile = activeRecentFile?.file ?? null;
   const activeFileExtension = activeFile
     ? getFileExtension(activeFile.name)
-    : task.originalFormat?.toLowerCase() ?? null;
+    : (task.originalFormat?.toLowerCase() ?? null);
   const isOfficeDocument =
     activeFileExtension != null &&
     OFFICE_DOCUMENT_EXTENSIONS.includes(activeFileExtension);
 
   const totalPages = isOfficeDocument
-    ? previews?.length ?? task.pagesCount ?? 0
-    : previews?.length ?? task.pagesCount ?? activeRecentFile?.pages ?? 0;
+    ? (previews?.length ?? task.pagesCount ?? 0)
+    : (previews?.length ?? task.pagesCount ?? activeRecentFile?.pages ?? 0);
   const pricePerPage = useMemo(() => {
     if (!selectedPrinter) {
       return 0;
@@ -318,18 +338,24 @@ export function Preview() {
       const originalFileName = task.originalFileName;
       const extension = file
         ? getFileExtension(file.name)
-        : task.originalFormat?.toLowerCase() ?? null;
+        : (task.originalFormat?.toLowerCase() ?? null);
 
       if (!file && !serverFileUrl) {
         setFileName(
-          originalFileName ?? activeRecentFile?.title ?? t("preview.noFileSelected"),
+          originalFileName ??
+            activeRecentFile?.title ??
+            t("preview.noFileSelected"),
         );
         setPreviews(null);
         setPreviewSession(null);
         return;
       }
 
-      setFileName(originalFileName ?? activeRecentFile?.title ?? t("preview.noFileSelected"));
+      setFileName(
+        originalFileName ??
+          activeRecentFile?.title ??
+          t("preview.noFileSelected"),
+      );
 
       if (!extension) {
         setPreviews(null);
@@ -342,7 +368,9 @@ export function Preview() {
       );
 
       if (OFFICE_DOCUMENT_EXTENSIONS.includes(extension)) {
-        setFileName(originalFileName ?? activeRecentFile?.title ?? fileBaseName);
+        setFileName(
+          originalFileName ?? activeRecentFile?.title ?? fileBaseName,
+        );
 
         if (task.fileStatus === "processing") {
           setLoading(true);
@@ -437,75 +465,91 @@ export function Preview() {
           </h1>
         </div>
 
-        <div className="mx-4 mb-4 rounded-[28px] border border-white/30 bg-white/70 p-4 shadow-[0_8px_32px_rgba(26,35,126,0.05)] backdrop-blur-xl">
-          <div className="flex items-center justify-between gap-3 px-2 pb-3">
-            <span className="max-w-[60%] truncate text-sm font-semibold text-[#000666]">
-              {fileName}
-            </span>
-            <span className="shrink-0 rounded-full bg-[#e0e0ff]/70 px-3 py-1 text-xs font-bold uppercase tracking-[0.08em] text-[#1a237e]">
-              {t("common.pages", { count: totalPages })}
-            </span>
-          </div>
-
-          <div
-            ref={scrollRef}
-            onScroll={handleScroll}
-            className="flex gap-3 overflow-x-auto px-2 pb-3"
-            style={{ scrollbarWidth: "none" }}
-          >
-            {loading ? (
-              <div className="flex h-48 w-36 shrink-0 items-center justify-center rounded-[22px] border border-white/50 bg-white/75">
-                <span className="text-xs font-medium text-[#767683]">
-                  {t("common.loading")}
+        <div className="mx-4 mb-4 min-h-[318px] rounded-[28px] border border-white/30 bg-white/70 p-4 shadow-[0_8px_32px_rgba(26,35,126,0.05)] backdrop-blur-xl">
+          {loading ? (
+            <PreviewLoader label={t("common.loading")} />
+          ) : (
+            <>
+              <div className="flex items-center justify-between gap-3 px-2 pb-3">
+                <span className="max-w-[60%] truncate text-sm font-semibold text-[#000666]">
+                  {fileName}
+                </span>
+                <span className="shrink-0 rounded-full bg-[#e0e0ff]/70 px-3 py-1 text-xs font-bold uppercase tracking-[0.08em] text-[#1a237e]">
+                  {t("common.pages", { count: totalPages })}
                 </span>
               </div>
-            ) : previews ? (
-              previews.map((preview, i) => (
-                <div
-                  key={i}
-                  className="h-48 w-36 shrink-0 overflow-hidden rounded-[12px] border border-black/15 bg-white/85 "
-                >
-                  <PageCard preview={preview} />
-                </div>
-              ))
-            ) : (
-              Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-48 w-36 shrink-0 rounded-[22px] border border-white/50 bg-white/85"
-                >
-                  <Placeholder />
-                </div>
-              ))
-            )}
-          </div>
 
-          <div className="flex items-center justify-between gap-3 px-2 pb-1 pt-1">
-            <div className="mx-auto h-1.5 max-w-25 flex-1 overflow-hidden rounded-full bg-[#d8dcff]">
               <div
-                className="h-full w-10 rounded-full bg-gray-800 transition-all duration-150"
-                style={{
-                  marginLeft: `calc(${scrollProgress} * (100% - 40px))`,
-                  background: "linear-gradient(90deg,#1a237e 0%,#4c56af 100%)",
-                }}
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() => navigate("/app/full-preview")}
-              disabled={!previews?.length}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/50 bg-white/70 text-[#1a237e] shadow-[0_8px_20px_rgba(26,35,126,0.06)] disabled:opacity-40"
-            >
-              <Scan size={14} />
-            </button>
-          </div>
+                ref={scrollRef}
+                onScroll={handleScroll}
+                className="flex gap-3 overflow-x-auto px-2 pb-3"
+                style={{ scrollbarWidth: "none" }}
+              >
+                {loading ? (
+                  <div className="flex h-48 w-36 shrink-0 items-center justify-center rounded-[22px] border border-white/50 bg-white/75">
+                    <span className="text-xs font-medium text-[#767683]">
+                      {t("common.loading")}
+                    </span>
+                  </div>
+                ) : previews ? (
+                  previews.map((preview, i) => (
+                    <div
+                      key={i}
+                      className="h-48 w-36 shrink-0 overflow-hidden rounded-[12px] border border-black/15 bg-white/85 "
+                    >
+                      <PageCard preview={preview} />
+                    </div>
+                  ))
+                ) : (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-48 w-36 shrink-0 rounded-[22px] border border-white/50 bg-white/85"
+                    >
+                      <Placeholder />
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="flex items-center justify-between gap-3 px-2 pb-1 pt-1">
+                <div className="mx-auto h-1.5 max-w-25 flex-1 overflow-hidden rounded-full bg-[#d8dcff]">
+                  <div
+                    className="h-full w-10 rounded-full bg-gray-800 transition-all duration-150"
+                    style={{
+                      marginLeft: `calc(${scrollProgress} * (100% - 40px))`,
+                      background:
+                        "linear-gradient(90deg,#1a237e 0%,#4c56af 100%)",
+                    }}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate("/app/full-preview")}
+                  disabled={!previews?.length}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/50 bg-white/70 text-[#1a237e] shadow-[0_8px_20px_rgba(26,35,126,0.06)] disabled:opacity-40"
+                >
+                  <Scan size={14} />
+                </button>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="mx-4 mb-4 rounded-[28px] border border-white/30 bg-white/70 p-5 shadow-[0_8px_32px_rgba(26,35,126,0.05)] backdrop-blur-xl">
           <label className="block">
-            <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#767683]">
-              Selected printer
-            </span>
+            <div className="flex justify-between items-center gap-3">
+              <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#767683]">
+                Selected printer
+              </span>
+              <button
+                type="button"
+                onClick={() => navigate("/app/printer-scanner")}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/50 bg-white/70 text-[#1a237e] shadow-[0_8px_20px_rgba(26,35,126,0.06)] disabled:opacity-40"
+              >
+                <QrCode size={18} />
+              </button>
+            </div>
             <div className="relative mt-3 overflow-hidden rounded-[22px] border border-black/5 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(240,242,255,0.92))] shadow-[0_8px_24px_rgba(26,35,126,0.06),inset_0_1px_0_rgba(255,255,255,0.85)] transition focus-within:border-[#b7bccf] focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(189,194,255,0.24)]">
               <div className="pointer-events-none flex items-center justify-between gap-3 px-3 py-3">
                 <div className="min-w-0">
@@ -636,7 +680,8 @@ export function Preview() {
                 </span>
                 <span className="font-semibold text-[#000666]">
                   {selectedPages.slice(0, 5).join(", ")}
-                  {selectedPages.length > 5 ? "..." : ""}
+                  {selectedPages.length > 5 ? "..." : ""}{" "}
+                  {selectedPages?.length > 1 ? "pages" : "page"}
                 </span>
               </div>
             )}
@@ -716,7 +761,7 @@ export function Preview() {
                     );
                   }
                 }}
-                className="ml-4 max-w-[200px] flex-1 rounded-full bg-[#1a237e] py-3.5 text-sm font-semibold text-white shadow-[0_16px_28px_rgba(26,35,126,0.22)] disabled:opacity-50"
+                className="ml-4 max-w-[200px] flex-1 rounded-2xl bg-[#1a237e] py-3.5 text-sm font-semibold text-white shadow-[0_16px_28px_rgba(26,35,126,0.22)] disabled:opacity-50"
                 disabled={
                   (rangeError !== null && pageMode === "custom") ||
                   !printRequestPayload.pid ||

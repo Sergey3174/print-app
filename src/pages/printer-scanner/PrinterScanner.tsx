@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { useRecentFiles } from "../../widgets/app-layout/model/recentFilesContext";
 import { type AppDispatch, type RootState } from "../../app/store/store";
 import { setSelectedPrinter } from "../../entities/printer/store/selectedPrinterSlice";
 import { validatePrinterQr } from "../../shared/lib/qr/validatePrinterQr";
@@ -96,7 +95,6 @@ export function PrinterScanner() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { activeRecentFile } = useRecentFiles();
   const printers = useSelector(
     (state: RootState) => state.printers.data?.printers ?? [],
   );
@@ -170,12 +168,6 @@ export function PrinterScanner() {
     setIsCameraReady(false);
     setStatusText(t("scanner.requestingAccess"));
     hasHandledResultRef.current = false;
-
-    if (!activeRecentFile?.file) {
-      toast.error(t("scanner.noFileSelected"));
-      navigate("/app");
-      return;
-    }
 
     if (!navigator.mediaDevices?.getUserMedia) {
       const errorMessage = t("scanner.cameraUnsupported");

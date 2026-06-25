@@ -1,67 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FileText, MapPin, Printer } from "lucide-react";
+import { MapPin, Printer } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { Map, type PrinterPoint } from "../../../widgets/map/Map";
-import { useRecentFiles } from "../../../widgets/app-layout/model/recentFilesContext";
 import { getDistance } from "../../../shared/lib/getDisatnce";
-import { formatCurrency } from "../../../shared/lib/formatCurrency";
 import { type AppDispatch, type RootState } from "../../../app/store/store";
 import {
   clearSelectedPrinter,
   setSelectedPrinter,
 } from "../../../entities/printer/store/selectedPrinterSlice";
+import { PrintHistorySection } from "./PrintHistorySection";
 
 export type WaterAmount = number;
-
-const PRINT_PRICE_PER_PAGE = 2000;
-
-function formatHistoryDate(
-  timestamp: number,
-  locale: string,
-  todayLabel: string,
-  yesterdayLabel: string,
-) {
-  const diffMs = Date.now() - timestamp;
-  const oneDay = 24 * 60 * 60 * 1000;
-
-  if (diffMs < oneDay) {
-    return todayLabel;
-  }
-
-  if (diffMs < oneDay * 2) {
-    return yesterdayLabel;
-  }
-
-  return new Intl.DateTimeFormat(locale, {
-    day: "numeric",
-    month: "short",
-  }).format(timestamp);
-}
-
-function getHistoryBadge(type: string) {
-  if (type === "PDF" || type === "DOCX" || type === "DOC") {
-    return {
-      label: type,
-      className: "bg-emerald-100 text-emerald-700",
-      icon: <FileText size={14} />,
-    };
-  }
-
-  return {
-    label: type,
-    className: "bg-indigo-100 text-indigo-700",
-    icon: <Printer size={14} />,
-  };
-}
-
-function getPrintMode(type: string, colorLabel: string, bwLabel: string) {
-  if (["JPG", "JPEG", "PNG", "WEBP"].includes(type)) {
-    return colorLabel;
-  }
-
-  return bwLabel;
-}
 
 export function HomePage() {
   const { t, i18n } = useTranslation();
@@ -72,7 +22,7 @@ export function HomePage() {
   const selectedPrinter = useSelector(
     (state: RootState) => state.selectedPrinter.printer,
   );
-  const { recentFiles } = useRecentFiles();
+
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [nearestPoint, setNearestPoint] = useState<PrinterPoint | null>(null);
   const [nearestDistance, setNearestDistance] = useState(0);
@@ -223,7 +173,7 @@ export function HomePage() {
                     onClick={() => handleSelectPoint(point)}
                     className={`flex items-center gap-4 rounded-[12px] border px-3 py-3 text-left shadow-[0_4px_12px_rgba(26,35,126,0.08)] transition ${
                       isSelected
-                        ? "border-[#c6c5d4] bg-[#f5f3f3]"
+                        ? "border-[#1d4ed880] bg-[#1d4ed820]"
                         : "border-transparent bg-white"
                     }`}
                   >
@@ -271,71 +221,7 @@ export function HomePage() {
             </div>
           </section>
 
-          <section className="space-y-3">
-            <div className="flex items-center gap-2">
-              {/* <Clock3 size={18} className="text-[#667085]" /> */}
-              <h2 className="text-[22px] font-bold tracking-[-0.02em] text-[#101828]">
-                {t("home.printHistory")}
-              </h2>
-            </div>
-
-            {recentFiles.length ? (
-              <div className="hide-scrollbar flex snap-x gap-4 overflow-x-auto pb-24">
-                {recentFiles.map((doc) => {
-                  const badge = getHistoryBadge(doc.type);
-                  const printMode = getPrintMode(
-                    doc.type,
-                    t("home.color"),
-                    t("home.bw"),
-                  );
-
-                  return (
-                    <article
-                      key={doc.id}
-                      className="min-w-[280px] snap-start rounded-[22px] border border-black/5 bg-white p-4 shadow-[0_6px_22px_rgba(17,24,39,0.06)]"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[#1a237e]">{badge.icon}</span>
-                          <span
-                            className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] ${badge.className}`}
-                          >
-                            {badge.label}
-                          </span>
-                        </div>
-                        <span className="text-xs text-[#667085]">
-                          {formatHistoryDate(
-                            doc.createdAt,
-                            dateLocale,
-                            t("home.today"),
-                            t("home.yesterday"),
-                          )}
-                        </span>
-                      </div>
-
-                      <h3 className="mt-4 truncate text-base font-semibold text-[#101828]">
-                        {doc.title}
-                      </h3>
-
-                      <div className="mt-4 flex items-center justify-between border-t border-black/6 pt-3">
-                        <span className="text-xs text-[#667085]">
-                          {t("common.pages", { count: doc.pages })} /{" "}
-                          {printMode}
-                        </span>
-                        <span className="text-lg font-bold text-[#1a237e]">
-                          {formatCurrency(doc.pages * PRINT_PRICE_PER_PAGE)}
-                        </span>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="rounded-[22px] border border-dashed border-black/10 bg-white px-5 py-10 text-center text-sm text-[#667085]">
-                {t("home.noPrintHistory")}
-              </div>
-            )}
-          </section>
+          <PrintHistorySection dateLocale={dateLocale} t={t} />
         </div>
       </div>
     </section>

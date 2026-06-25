@@ -101,7 +101,7 @@ export function AppLayout() {
       <Outlet />
 
       <button
-        className="absolute bottom-5 right-1/2 translate-x-1/2 uppercase min-w-[240px] h-12 px-4  gap-2  bg-[#1a237e] text-white flex justify-center items-center rounded-full"
+        className="absolute bottom-5 right-1/2 translate-x-1/2 uppercase min-w-[240px] h-12 px-4  gap-2  bg-[#1a237e] text-white flex justify-center items-center rounded-2xl"
         onClick={() => setIsUploadSheetOpen(true)}
         aria-label={t("common.uploadFile")}
       >
@@ -136,11 +136,11 @@ export function AppLayout() {
 
             <div className="min-w-0 flex-1">
               <p className="text-base font-semibold text-[#000666]">
-                {isOpeningFile ? t("common.openingFile") : t("common.chooseFile")}
+                {isOpeningFile
+                  ? t("common.openingFile")
+                  : t("common.chooseFile")}
               </p>
-              <p className="text-xs text-[#454652]">
-                {t("app.uploadFormats")}
-              </p>
+              <p className="text-xs text-[#454652]">{t("app.uploadFormats")}</p>
             </div>
 
             <Upload
@@ -151,7 +151,9 @@ export function AppLayout() {
 
           <div className="flex items-start gap-3 rounded-xl border border-[#bdc2ff] bg-[#e0e0ff]/40 p-3">
             <Info size={16} className="mt-0.5 shrink-0 text-[#1a237e]" />
-            <p className="text-xs leading-relaxed text-[#343d96]">{t("app.uploadHint")}</p>
+            <p className="text-xs leading-relaxed text-[#343d96]">
+              {t("app.uploadHint")}
+            </p>
           </div>
         </div>
       </SettingsEditorSheet>

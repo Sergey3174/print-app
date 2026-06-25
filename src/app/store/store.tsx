@@ -5,6 +5,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { selectedPrinterReducer } from "../../entities/printer/store/selectedPrinterSlice";
 import { printersReducer } from "../../entities/printer/store/printersSlice";
 import { taskReducer } from "../../entities/task/store/taskSlice";
+import { taskHistoryReducer } from "../../entities/taskHistory/store/taskHistorySlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     printers: printersReducer,
     selectedPrinter: selectedPrinterReducer,
     task: taskReducer,
+    taskHistory: taskHistoryReducer,
   },
 });
 
