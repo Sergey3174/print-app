@@ -1,5 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { Printer } from "../../../mock/printers";
+import i18n from "../../../i18n";
+import { toast } from "react-toastify";
 
 type SelectedPrinterState = {
   printer: Printer | null;
@@ -21,6 +23,20 @@ const selectedPrinterSlice = createSlice({
     },
   },
 });
+
+export function selectPrinterWithStatus(printer: Printer) {
+  return (dispatch: (action: ReturnType<typeof setSelectedPrinter>) => void) => {
+    if (!printer.is_online) {
+      toast.error(
+        i18n.t("printer.offlineUnavailable", { printerName: printer.name }),
+      );
+      return false;
+    }
+
+    dispatch(setSelectedPrinter(printer));
+    return true;
+  };
+}
 
 export const { setSelectedPrinter, clearSelectedPrinter } =
   selectedPrinterSlice.actions;

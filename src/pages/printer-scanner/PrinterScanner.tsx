@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { type AppDispatch, type RootState } from "../../app/store/store";
-import { setSelectedPrinter } from "../../entities/printer/store/selectedPrinterSlice";
+import { selectPrinterWithStatus } from "../../entities/printer/store/selectedPrinterSlice";
 import { validatePrinterQr } from "../../shared/lib/qr/validatePrinterQr";
 
 const REAR_CAMERA_PATTERNS = [
@@ -128,7 +128,7 @@ export function PrinterScanner() {
     navigate("/app/preview");
   };
 
-  const handleValidScanResult = (qrValue: string) => {
+  const handleValidScanResult = async (qrValue: string) => {
     const validationResult = validatePrinterQr(qrValue);
 
     if (!validationResult.isValid) {
@@ -152,7 +152,17 @@ export function PrinterScanner() {
     }
 
     hasHandledResultRef.current = true;
-    dispatch(setSelectedPrinter(matchedPrinter));
+    const isSelected = await dispatch(selectPrinterWithStatus(matchedPrinter));
+
+    if (!isSelected) {
+      setScannerError(
+        t("printer.offlineUnavailable", { printerName: matchedPrinter.name }),
+      );
+      setStatusText(t("scanner.pointCamera"));
+      stopScanner();
+      return;
+    }
+
     setScanResult(qrValue);
     setStatusText(t("scanner.printerFound"));
     setScannerError(null);
@@ -266,7 +276,7 @@ export function PrinterScanner() {
             aria-label={t("common.back")}
             onClick={() => {
               stopScanner();
-              navigate("/app");
+              navigate(-1);
             }}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition active:scale-95"
           >

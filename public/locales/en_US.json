@@ -51,6 +51,9 @@
     "youAreHere": "You are here",
     "printerAt": "Printer at"
   },
+  "printer": {
+    "offlineUnavailable": "{{printerName}} is currently offline. Please choose another printer."
+  },
   "preview": {
     "title": "Preview",
     "copy": "Copy",

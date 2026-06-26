@@ -51,6 +51,9 @@
     "youAreHere": "Anda di sini",
     "printerAt": "Printer di"
   },
+  "printer": {
+    "offlineUnavailable": "{{printerName}} sedang offline. Silakan pilih printer lain."
+  },
   "preview": {
     "title": "Pratinjau",
     "copy": "Salinan",

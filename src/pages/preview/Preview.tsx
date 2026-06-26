@@ -25,7 +25,7 @@ import {
   estimateTaskThunk,
   fetchTaskStateThunk,
 } from "../../entities/task/store/taskSlice";
-import { setSelectedPrinter } from "../../entities/printer/store/selectedPrinterSlice";
+import { selectPrinterWithStatus } from "../../entities/printer/store/selectedPrinterSlice";
 
 const DOCX_PAGE_WIDTH = 794;
 const DOCX_DEFAULT_PAGE_HEIGHT = 1123;
@@ -588,7 +588,7 @@ export function Preview() {
                     return;
                   }
 
-                  dispatch(setSelectedPrinter(printer));
+                  void dispatch(selectPrinterWithStatus(printer));
                 }}
                 className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
               >

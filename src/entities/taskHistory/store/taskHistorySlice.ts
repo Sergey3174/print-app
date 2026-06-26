@@ -17,16 +17,17 @@ export type TaskHistoryItem = {
   ipp_job_id: number | null;
   created_at: string;
   updated_at: string;
+  document_name: string;
 };
 
 export type TaskHistoryResponse = {
-  cid: string;
-  total: number;
-  page: number;
-  page_size: number;
-  pages: number;
-  has_next: boolean;
-  has_prev: boolean;
+  // cid: string;
+  total_items: number;
+  current_page: number;
+  per_page: number;
+  total_pages: number;
+  // has_next: boolean;
+  // has_prev: boolean;
   items: TaskHistoryItem[];
 };
 
@@ -58,7 +59,7 @@ export const loadTaskHistoryThunk = createAsyncThunk<
       {
         params: {
           page: params?.page ?? 1,
-          page_size: params?.page_size ?? 20,
+          per_page: params?.page_size ?? 20,
         },
       },
     );

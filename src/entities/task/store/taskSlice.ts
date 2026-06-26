@@ -1,3 +1,4 @@
+import axios from "axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../../shared/lib/axiosInstance";
 import type { RootState } from "../../../app/store/store";
@@ -5,8 +6,29 @@ import {
   saveTaskEstimate,
   saveTaskTid,
 } from "../../../shared/lib/taskRecovery";
+import { getUploadInitContentType } from "../../../shared/lib/file/getUploadInitContentType";
 
 type CreateTaskResponse = {
+  tid: string;
+};
+
+type CreateTaskRequest = {
+  tid: string;
+};
+
+export type InitTaskUploadRequest = {
+  original_file_name: string;
+  content_type: string;
+};
+
+export type InitTaskUploadResponse = {
+  tid: string;
+  upload_url: string;
+  expires_in: number;
+  content_type: string;
+};
+
+type UploadTaskFileResponse = {
   tid: string;
 };
 
@@ -118,16 +140,13 @@ const initialState: TaskState = {
 
 export const createTaskThunk = createAsyncThunk<
   CreateTaskResponse,
-  File,
+  CreateTaskRequest,
   { rejectValue: string }
->("task/createTask", async (file, { rejectWithValue }) => {
+>("task/createTask", async (payload, { rejectWithValue }) => {
   try {
-    const formData = new FormData();
-    formData.append("file", file);
-
     const { data } = await axiosInstance.post<CreateTaskResponse>(
       "/api/task/create",
-      formData,
+      payload,
     );
 
     if (!data?.tid) {
@@ -139,6 +158,74 @@ export const createTaskThunk = createAsyncThunk<
   } catch (error) {
     return rejectWithValue("Failed to create task");
   }
+});
+
+export const initTaskUploadThunk = createAsyncThunk<
+  InitTaskUploadResponse,
+  File,
+  { rejectValue: string }
+>("task/initTaskUpload", async (file, { rejectWithValue }) => {
+  const contentType = getUploadInitContentType(file.name);
+
+  if (!contentType) {
+    return rejectWithValue("Unsupported file type");
+  }
+
+  const payload: InitTaskUploadRequest = {
+    original_file_name: file.name,
+    content_type: contentType,
+  };
+
+  try {
+    const { data } = await axiosInstance.post<InitTaskUploadResponse>(
+      "/api/task/upload/init",
+      payload,
+    );
+
+    if (!data?.tid || !data?.upload_url || !data?.content_type) {
+      return rejectWithValue("Invalid upload init response");
+    }
+
+    saveTaskTid(data.tid);
+    return data;
+  } catch {
+    return rejectWithValue("Failed to initialize upload");
+  }
+});
+
+export const uploadTaskFileThunk = createAsyncThunk<
+  UploadTaskFileResponse,
+  File,
+  { rejectValue: string }
+>("task/uploadTaskFile", async (file, { dispatch, rejectWithValue }) => {
+  const initUploadResult = await dispatch(initTaskUploadThunk(file));
+
+  if (initTaskUploadThunk.rejected.match(initUploadResult)) {
+    return rejectWithValue(
+      initUploadResult.payload ?? "Failed to initialize upload",
+    );
+  }
+
+  const { tid, upload_url: uploadUrl, content_type: contentType } =
+    initUploadResult.payload;
+
+  try {
+    await axios.put(uploadUrl, file, {
+      headers: {
+        "Content-Type": contentType || file.type || "application/octet-stream",
+      },
+    });
+  } catch {
+    return rejectWithValue("Failed to upload file");
+  }
+
+  const createTaskResult = await dispatch(createTaskThunk({ tid }));
+
+  if (createTaskThunk.rejected.match(createTaskResult)) {
+    return rejectWithValue(createTaskResult.payload ?? "Failed to create task");
+  }
+
+  return createTaskResult.payload;
 });
 
 export const fetchTaskStateThunk = createAsyncThunk<
@@ -306,11 +393,10 @@ const taskSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(createTaskThunk.pending, (state, action) => {
+      .addCase(createTaskThunk.pending, (state) => {
         state.isLoading = true;
         state.error = null;
         state.tid = null;
-        state.uploadedFileName = action.meta.arg.name;
         state.status = null;
         state.fileStatus = null;
         state.errorMessage = null;
@@ -331,6 +417,58 @@ const taskSlice = createSlice({
       .addCase(createTaskThunk.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload ?? "Failed to create task";
+      })
+      .addCase(initTaskUploadThunk.pending, (state, action) => {
+        state.isLoading = true;
+        state.error = null;
+        state.tid = null;
+        state.uploadedFileName = action.meta.arg.name;
+        state.status = null;
+        state.fileStatus = null;
+        state.errorMessage = null;
+        state.originalFormat = null;
+        state.originalFileName = null;
+        state.pdfFileUrl = null;
+        state.pagesCount = null;
+        state.averageInkCoverage = null;
+        state.inkCoverage = [];
+        state.estimate = null;
+        state.paymentStatus = null;
+        state.printState = null;
+      })
+      .addCase(initTaskUploadThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.tid = action.payload.tid;
+      })
+      .addCase(initTaskUploadThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload ?? "Failed to initialize upload";
+      })
+      .addCase(uploadTaskFileThunk.pending, (state, action) => {
+        state.isLoading = true;
+        state.error = null;
+        state.tid = null;
+        state.uploadedFileName = action.meta.arg.name;
+        state.status = null;
+        state.fileStatus = null;
+        state.errorMessage = null;
+        state.originalFormat = null;
+        state.originalFileName = null;
+        state.pdfFileUrl = null;
+        state.pagesCount = null;
+        state.averageInkCoverage = null;
+        state.inkCoverage = [];
+        state.estimate = null;
+        state.paymentStatus = null;
+        state.printState = null;
+      })
+      .addCase(uploadTaskFileThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.tid = action.payload.tid;
+      })
+      .addCase(uploadTaskFileThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload ?? "Failed to upload file";
       })
       .addCase(fetchTaskStateThunk.pending, (state) => {
         state.isLoading = true;

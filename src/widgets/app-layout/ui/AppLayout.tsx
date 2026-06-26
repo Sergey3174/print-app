@@ -7,12 +7,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { FileText, Info, Upload } from "lucide-react";
 import { toast } from "react-toastify";
 import { validatePreviewFile } from "../../../shared/lib/file/validatePreviewFile";
-import EN from "../../../assets/en.png";
+import EN from "../../../assets/en.svg";
 import ID from "../../../assets/id.png";
 import { useTranslation } from "react-i18next";
 import { changeAppLanguage, type AppLanguage } from "../../../i18n";
 import { type AppDispatch, type RootState } from "../../../app/store/store";
-import { createTaskThunk } from "../../../entities/task/store/taskSlice";
+import { uploadTaskFileThunk } from "../../../entities/task/store/taskSlice";
 
 export function AppLayout() {
   const { t, i18n } = useTranslation();
@@ -47,7 +47,7 @@ export function AppLayout() {
     setIsOpeningFile(true);
 
     try {
-      await dispatch(createTaskThunk(file)).unwrap();
+      await dispatch(uploadTaskFileThunk(file)).unwrap();
       await openPreviewFile(file);
       setIsUploadSheetOpen(false);
       navigate(selectedPrinter ? "/app/preview" : "/app/printer-scanner");
@@ -89,7 +89,7 @@ export function AppLayout() {
                 ? t("common.language.english")
                 : t("common.language.indonesian")
             }
-            className="h-full w-full "
+            className="h-full w-full object-cover rounded-full"
           />
         </button>
       </div>

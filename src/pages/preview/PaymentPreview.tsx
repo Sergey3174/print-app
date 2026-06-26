@@ -209,7 +209,7 @@ export function PaymentPreview() {
                         paymentCallbackThunk(),
                       ).unwrap();
 
-                      if (callbackResult.status !== "done") {
+                      if (callbackResult.status !== "paid") {
                         setActiveMethod("none");
                         toast.error(`Payment status: ${callbackResult.status}`);
                         return;

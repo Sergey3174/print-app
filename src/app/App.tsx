@@ -20,7 +20,7 @@ import { PrintSuccess } from "../pages/preview/PrintSuccess";
 import { RecentFilesProvider } from "../widgets/app-layout/model/recentFilesContext";
 import { PrinterScanner } from "../pages/printer-scanner/PrinterScanner";
 import { usePrinters } from "../hooks/usePrinters";
-import { setSelectedPrinter } from "../entities/printer/store/selectedPrinterSlice";
+import { selectPrinterWithStatus } from "../entities/printer/store/selectedPrinterSlice";
 import {
   setTaskEstimate,
   setTaskTid,
@@ -54,7 +54,7 @@ function QueryPrinterSync() {
       return;
     }
 
-    dispatch(setSelectedPrinter(printerFromQuery));
+    void dispatch(selectPrinterWithStatus(printerFromQuery));
   }, [dispatch, location.search, printers, selectedPrinter]);
 
   return null;

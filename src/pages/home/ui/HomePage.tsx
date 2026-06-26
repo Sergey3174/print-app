@@ -7,7 +7,7 @@ import { getDistance } from "../../../shared/lib/getDisatnce";
 import { type AppDispatch, type RootState } from "../../../app/store/store";
 import {
   clearSelectedPrinter,
-  setSelectedPrinter,
+  selectPrinterWithStatus,
 } from "../../../entities/printer/store/selectedPrinterSlice";
 import { PrintHistorySection } from "./PrintHistorySection";
 
@@ -118,7 +118,7 @@ export function HomePage() {
         return;
       }
 
-      dispatch(setSelectedPrinter(printer));
+      void dispatch(selectPrinterWithStatus(printer));
     },
     [dispatch, printers],
   );

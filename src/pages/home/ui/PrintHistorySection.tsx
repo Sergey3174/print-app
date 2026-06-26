@@ -65,10 +65,13 @@ export function PrintHistorySection({
   const listRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const historyData = useSelector((state: RootState) => state.taskHistory.data);
-  const isLoading = useSelector((state: RootState) => state.taskHistory.isLoading);
+  const isLoading = useSelector(
+    (state: RootState) => state.taskHistory.isLoading,
+  );
   const historyItems = historyData?.items ?? [];
-  const hasNextPage = historyData?.has_next ?? false;
-  const nextPage = (historyData?.page ?? 0) + 1;
+  const hasNextPage =
+    (historyData?.current_page ?? 0) < (historyData?.total_pages ?? 0);
+  const nextPage = (historyData?.current_page ?? 0) + 1;
 
   const renderItems = useMemo(
     () => historyItems.filter((item) => item.status === "done"),
@@ -87,7 +90,9 @@ export function PrintHistorySection({
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting && hasNextPage && !isLoading) {
-          void dispatch(loadTaskHistoryThunk({ page: nextPage, page_size: 20 }));
+          void dispatch(
+            loadTaskHistoryThunk({ page: nextPage, page_size: 20 }),
+          );
         }
       },
       {
@@ -151,7 +156,7 @@ export function PrintHistorySection({
                 </div>
 
                 <h3 className="mt-4 truncate text-base font-semibold text-[#101828]">
-                  Startup UX Blue Print
+                  {item.document_name}
                 </h3>
                 <p className="mt-1 truncate text-sm text-[#667085]">
                   {item.printer_name ?? "Printer not selected"}

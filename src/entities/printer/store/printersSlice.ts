@@ -5,6 +5,7 @@ import {
 } from "@reduxjs/toolkit";
 import type { PrintersMock } from "../../../mock/printers";
 import { axiosInstance } from "../../../shared/lib/axiosInstance";
+import { getCid } from "../../../shared/lib/cid";
 
 type PrintersState = {
   data: PrintersMock | null;
@@ -21,27 +22,13 @@ const initialState: PrintersState = {
 export const loadPrintersThunk = createAsyncThunk(
   "printers/loadPrinters",
   async () => {
-    const { data } = await axiosInstance.post("/api/printers");
+    const { data } = await axiosInstance.get("/api/printers");
+    const cid = await getCid();
 
-    if (Array.isArray(data?.printers)) {
-      return {
-        ...data,
-        printers: [
-          ...data?.printers,
-          {
-            pid: "JKT-OLDTOWN-03",
-            name: "Old Town Copy Center",
-            latitude: -6.137,
-            longitude: 106.814,
-            is_online: true,
-            is_busy: false,
-            price_bw: 9,
-            price_color: 19,
-            price_bw_duplex: 7,
-            price_color_duplex: 15,
-          },
-        ],
-      } as PrintersMock;
+    const mapData = { ...data, printers: data?.items, cid: cid };
+
+    if (Array.isArray(mapData?.printers)) {
+      return mapData as PrintersMock;
     }
 
     throw new Error("Invalid printers response");
